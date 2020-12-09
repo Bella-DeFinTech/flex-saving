@@ -1,0 +1,13 @@
+{
+  "name": "flexsaving-locker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@openzeppelin/contracts": "^2.5.0",
+    "eth-saddle": "^0.1.21"
+  },
+  "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.6"
+  }
+}
