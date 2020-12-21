@@ -121,3 +121,9 @@ dist
 
 # deploy info file
 deploy.txt
+
+# slither requires a hardcoded absolute path for open-zeppelin libraries, so-called "remapping"
+slither.config.json
+
+# local vscode config
+.vscode/
