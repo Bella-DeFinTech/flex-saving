@@ -1,0 +1,3 @@
+{
+    "solc_remaps": "@openzeppelin/=/absolute/path/to/flex-saving/node_modules/@openzeppelin/"
+}
