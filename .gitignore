@@ -1,6 +1,9 @@
 # truffle build folder
 build
 
+# saddle build folder
+.build/
+
 # Logs
 logs
 *.log
@@ -121,3 +124,8 @@ dist
 
 # deploy info file
 deploy.txt
+vaults.json
+
+# --standard-json
+solcinputjson.sh
+output.json

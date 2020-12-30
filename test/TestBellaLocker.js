@@ -21,7 +21,7 @@ describe('Test BellaLocker Normal', () => {
         deployer,
         userBackground,
         user,
-    ] = saddle.wallet_accounts
+    ] = accounts
 
     console.log(deployer)
     console.log(userBackground)
