@@ -1,6 +1,6 @@
 
 module.exports = {
-  solc: "solc-static-linux",                                         // Solc command to run
+  solc: "solc-linux-amd64-v0.5.15+commit.6a57276f",                                         // Solc command to run
   solc_args: [
     '@openzeppelin/=$(pwd)/node_modules/@openzeppelin/',
     '--allow-paths','contracts'
