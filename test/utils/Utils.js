@@ -5,6 +5,15 @@ BigNumber.config({ DECIMAL_PLACES: 0 });
 let gasLogger = {};
 let gasLoggerNum = {};
 
+web3.eth.extend({
+  methods: [{
+      name: 'unlockAccount',
+      call: 'evm_unlockUnknownAccount',
+      params: 1,
+      inputFormatter: [web3.extend.formatters.inputAddressFormatter]
+  }]
+})
+
 async function gasLog(logTo, targetPromise) {
   let tx = await targetPromise;
   gasUsed = tx.receipt.gasUsed;
@@ -21,6 +30,10 @@ async function gasLog(logTo, targetPromise) {
 
 async function printGasLog() {
   console.log(gasLogger);
+}
+
+unlockAccount = async(address)=>{
+  return web3.eth.unlockAccount(address)
 }
 
 timeTravel = async (time) => {
@@ -82,7 +95,7 @@ function assertBNGt(a, b) {
   let _a = new BigNumber(a);
   let _b = new BigNumber(b);
   try {
-    expect(_a).toBeGreaterThan(_b);
+    expect(_a.comparedTo(b) > 0).toBeTruthy();
   } catch (error) {
     Error.captureStackTrace(error, assertBNGt)
     throw error
@@ -109,6 +122,7 @@ module.exports = {
   gasLoggerNum,
   gasLog,
   printGasLog,
+  unlockAccount,
   timeTravel,
   assertBNEq,
   assertApproxBNEq,
