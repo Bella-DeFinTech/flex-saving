@@ -76,13 +76,9 @@ sudo apt-get update \
 && sudo apt-get update \
 && sudo apt install yarn --yes \
 && cd ~ \
-&& git clone https://github.com/crytic/solc-select.git \
-&& ./solc-select/scripts/install.sh
-```
-
-After running you need to add content below which is solc-select required to your `.bashrc` file
-```
-export PATH=/home/$USER/.solc-select:$PATH
+&& wget -O solc https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/solc-linux-amd64-v0.5.15%2Bcommit.6a57276f \
+&& sudo chmod +x solc \
+&& sudo mv solc /usr/bin
 ```
 
 Voila!
