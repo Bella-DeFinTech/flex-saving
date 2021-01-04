@@ -46,7 +46,7 @@ Script will install:
 - nodejs 14.x
 - ganache-cli
 - yarn
-- solc-select
+- solc 0.5.15
 
 >Recommand use in a clean Ubuntu 20.04 installation
 ```
