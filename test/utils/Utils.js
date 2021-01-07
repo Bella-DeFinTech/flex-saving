@@ -1,16 +1,14 @@
-const BigNumber = require('bignumber.js');
-const { time } = require("@openzeppelin/test-helpers");
-BigNumber.config({ DECIMAL_PLACES: 0 });
+const BigNumber = require('bn.js');
 
 let gasLogger = {};
 let gasLoggerNum = {};
 
 web3.eth.extend({
   methods: [{
-      name: 'unlockAccount',
-      call: 'evm_unlockUnknownAccount',
-      params: 1,
-      inputFormatter: [web3.extend.formatters.inputAddressFormatter]
+    name: 'unlockAccount',
+    call: 'evm_unlockUnknownAccount',
+    params: 1,
+    inputFormatter: [web3.extend.formatters.inputAddressFormatter]
   }]
 })
 
@@ -32,89 +30,54 @@ async function printGasLog() {
   console.log(gasLogger);
 }
 
-unlockAccount = async(address)=>{
+unlockAccount = async (address) => {
   return web3.eth.unlockAccount(address)
 }
 
-timeTravel = async (time) => {
-  await increaseTime(time);
-  await mineBlock();
-  return Promise.resolve(web3.eth.getBlock('latest'));
-}
-
-increaseTime = (time) => {
-  return new Promise((resolve, reject) => {
-    web3.currentProvider.send({
-      jsonrpc: "2.0",
-      method: "evm_increaseTime",
-      params: [time],
-      id: new Date().getTime()
-    }, (err, result) => {
-      if (err) { return reject(err); }
-      return resolve(result);
-    });
-  });
-}
-
-mineBlock = () => {
-  return new Promise((resolve, reject) => {
-    web3.currentProvider.send({
-      jsonrpc: "2.0",
-      method: "evm_mine",
-      id: new Date().getTime()
-    }, (err, result) => {
-      if (err) { return reject(err); }
-      return resolve(result)
-    });
-  });
-}
-
-function assertBNEq(a, b) {
-  let _a = new BigNumber(a);
-  let _b = new BigNumber(b);
+function assertBNEq(received, expected) {
+  let _a = new BigNumber(received);
+  let _b = new BigNumber(expected);
   try {
-    expect(_a).toEqual(_b);
+    expect(_a.toString()).toEqual(_b.toString());
   } catch (error) {
     Error.captureStackTrace(error, assertBNEq)
     throw error
   }
 }
 
-function assertApproxBNEq(a, b, c) {
-  let _a = new BigNumber(a).div(c);
-  let _b = new BigNumber(b).div(c);
+function assertApproxBNEq(received, expected, denominator) {
+  let _a = new BigNumber(received).div(denominator);
+  let _b = new BigNumber(expected).div(denominator);
   try {
-    expect(_a).toEqual(_b);
+    expect(_a.toString()).toEqual(_b.toString());
   } catch (error) {
     Error.captureStackTrace(error, assertApproxBNEq)
     throw error
   }
 }
 
-function assertBNGt(a, b) {
-  let _a = new BigNumber(a);
-  let _b = new BigNumber(b);
+function assertBNGt(received, expected) {
+  let _a = new BigNumber(received);
+  let _b = new BigNumber(expected);
   try {
-    expect(_a.comparedTo(b) > 0).toBeTruthy();
+    expect(_a.gt(_b)).toBeTruthy();
   } catch (error) {
+    console.log('Received: ' + _a.toString())
+    console.log('Expected: ' + _b.toString())
     Error.captureStackTrace(error, assertBNGt)
     throw error
   }
 }
 
-function assertNEqBN(a, b) {
-  let _a = new BigNumber(a);
-  let _b = new BigNumber(b);
+function assertNEqBN(received, expected) {
+  let _a = new BigNumber(received);
+  let _b = new BigNumber(expected);
   try {
-    expect(_a).not.toEqual(_b);
+    expect(_a.toString()).not.toEqual(_b.toString());
   } catch (error) {
     Error.captureStackTrace(error, assertNEqBN)
     throw error
   }
-}
-
-async function inBNfixed(a) {
-  return await (new BigNumber(a)).toFixed();
 }
 
 module.exports = {
@@ -123,10 +86,8 @@ module.exports = {
   gasLog,
   printGasLog,
   unlockAccount,
-  timeTravel,
   assertBNEq,
   assertApproxBNEq,
   assertBNGt,
   assertNEqBN,
-  inBNfixed
 };

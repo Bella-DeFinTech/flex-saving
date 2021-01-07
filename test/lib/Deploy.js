@@ -2,7 +2,7 @@ const fs = require('fs');
 // don't capture console
 const console = require('console');
 
-module.exports = async function (saddle, deployer, accounts) {
+module.exports = async function (saddle, deployer, accounts, deployTokenIndices = []) {
 
   const deploy = saddle.deploy
   const send = saddle.send
@@ -17,13 +17,55 @@ module.exports = async function (saddle, deployer, accounts) {
   const arpaVaultStartTimestamp = 1606132800 // 2020/11/23 20:00
 
   // Deploy Configuration - Current vault tokens
-  const usdtToken = { symbol: 'USDT', _address: '0xdac17f958d2ee523a2206206994597c13d831ec7' }
-  const usdcToken = { symbol: 'USDC', _address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' }
-  const wbtcToken = { symbol: 'WBTC', _address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599' }
-  const arpaToken = { symbol: 'ARPA', _address: '0xba50933c268f567bdc86e1ac131be072c6b0b71a' }
-  const daiToken = { symbol: 'DAI', _address: '0x6b175474e89094c44da98b954eedeac495271d0f' }
-  const busdToken = { symbol: 'BUSD', _address: '0x4fabb145d64652a948d72533023f6e7a623c7c53' }
-  const hbtcToken = { symbol: 'HBTC', _address: '0x0316EB71485b0Ab14103307bf65a021042c6d380' }
+  const usdtToken = { index: 0, symbol: 'USDT', _address: '0xdac17f958d2ee523a2206206994597c13d831ec7' }
+  const usdcToken = { index: 1, symbol: 'USDC', _address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' }
+  const wbtcToken = { index: 2, symbol: 'WBTC', _address: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599' }
+  const arpaToken = { index: 3, symbol: 'ARPA', _address: '0xba50933c268f567bdc86e1ac131be072c6b0b71a' }
+  const daiToken = { index: 4, symbol: 'DAI', _address: '0x6b175474e89094c44da98b954eedeac495271d0f' }
+  const busdToken = { index: 5, symbol: 'BUSD', _address: '0x4fabb145d64652a948d72533023f6e7a623c7c53' }
+  const hbtcToken = { index: 6, symbol: 'HBTC', _address: '0x0316EB71485b0Ab14103307bf65a021042c6d380' }
+
+  const deployAddress = {
+    controller: '',
+    whitelist: '',
+    governance: '',
+    vault: {
+      usdt: '',
+      usdc: '',
+      wbtc: '',
+      arpa: '',
+      dai: '',
+      busd: '',
+      hbtc: ''
+    },
+    strategy: {
+      usdt: '',
+      usdc: '',
+      wbtc: '',
+      arpa: '',
+      dai: '',
+      busd: '',
+      hbtc: ''
+    },
+    token: {
+      usdt: usdtToken._address,
+      usdc: usdcToken._address,
+      wbtc: wbtcToken._address,
+      arpa: arpaToken._address,
+      dai: daiToken._address,
+      busd: busdToken._address,
+      hbtc: hbtcToken._address
+    },
+    tokenHolder: {
+      usdt: '0x5754284f345afc66a98fbB0a0Afe71e0F007B949',
+      usdc: '',
+      wbtc: '',
+      arpa: '',
+      dai: '0xf28d8a46cf2811c1fcc0cbbe0ab28dcecaa4f68c',
+      busd: '',
+      hbtc: ''
+    }
+  }
 
   // -----------------------PRODUCTION PARAMTERS --------------------------------
 
@@ -137,7 +179,10 @@ module.exports = async function (saddle, deployer, accounts) {
   addNewContent('[MIGRATE] Firman address: ' + firemanAddress)
   changeLine()
 
-  function addVault(controllerInstance, whitelistInstance, strategy, token) {
+  function addVault(controllerInstance, whitelistInstance, strategy, token, addressCallback) {
+    if (deployTokenIndices.length > 0 && deployTokenIndices.indexOf(token.index) === -1) {
+      return
+    }
     // if (network !== 'private') {
     //   console.log('[WARNING]: network name: ' + network) 
     // }
@@ -163,6 +208,8 @@ module.exports = async function (saddle, deployer, accounts) {
     }).then((_strategyContractInstance) => {
       strategyContractInstance = _strategyContractInstance
       addNewContent('[' + token.symbol + ' VAULT]: ' + token.symbol + ' StrategyAddress: ' + strategyContractInstance._address)
+
+      addressCallback(bvaultInstance._address, strategyContractInstance._address)
 
       console.log('[INFO]: Target token is: ' + token.symbol + ' Token')
 
@@ -214,19 +261,40 @@ module.exports = async function (saddle, deployer, accounts) {
 
       addNewContent('[FLEX SAVINGS] WhitelistAddress: ' + whitelistInstance._address)
 
-      return addVault(controllerInstance, whitelistInstance, 'StrategyUsdt', usdtToken)
+      return addVault(controllerInstance, whitelistInstance, 'StrategyUsdt', usdtToken, (vaultAddress, strategyAddress) => {
+        deployAddress.vault.usdt = vaultAddress
+        deployAddress.strategy.usdt = strategyAddress
+      })
     }).then(() => {
-      return addVault(controllerInstance, whitelistInstance, 'StrategyUsdc', usdcToken)
+      return addVault(controllerInstance, whitelistInstance, 'StrategyUsdc', usdcToken, (vaultAddress, strategyAddress) => {
+        deployAddress.vault.usdc = vaultAddress
+        deployAddress.strategy.usdc = strategyAddress
+      })
     }).then(() => {
-      return addVault(controllerInstance, whitelistInstance, 'StrategyWbtc', wbtcToken)
+      return addVault(controllerInstance, whitelistInstance, 'StrategyWbtc', wbtcToken, (vaultAddress, strategyAddress) => {
+        deployAddress.vault.wbtc = vaultAddress
+        deployAddress.strategy.wbtc = strategyAddress
+      })
     }).then(() => {
-      return addVault(controllerInstance, whitelistInstance, 'StrategyArpa', arpaToken)
+      return addVault(controllerInstance, whitelistInstance, 'StrategyArpa', arpaToken, (vaultAddress, strategyAddress) => {
+        deployAddress.vault.arpa = vaultAddress
+        deployAddress.strategy.arpa = strategyAddress
+      })
     }).then(() => {
-      return addVault(controllerInstance, whitelistInstance, 'StrategyDai', daiToken)
+      return addVault(controllerInstance, whitelistInstance, 'StrategyDai', daiToken, (vaultAddress, strategyAddress) => {
+        deployAddress.vault.dai = vaultAddress
+        deployAddress.strategy.dai = strategyAddress
+      })
     }).then(() => {
-      return addVault(controllerInstance, whitelistInstance, 'StrategyBusd', busdToken)
+      return addVault(controllerInstance, whitelistInstance, 'StrategyBusd', busdToken, (vaultAddress, strategyAddress) => {
+        deployAddress.vault.busd = vaultAddress
+        deployAddress.strategy.busd = strategyAddress
+      })
     }).then(() => {
-      return addVault(controllerInstance, whitelistInstance, 'StrategyHbtc', hbtcToken)
+      return addVault(controllerInstance, whitelistInstance, 'StrategyHbtc', hbtcToken, (vaultAddress, strategyAddress) => {
+        deployAddress.vault.hbtc = vaultAddress
+        deployAddress.strategy.hbtc = strategyAddress
+      })
     }).then(() => {
       return send(controllerInstance, 'setGovernance', [governanceAddress], { from: deployer })
     }).then(() => {
@@ -263,6 +331,7 @@ module.exports = async function (saddle, deployer, accounts) {
         if (err) throw err;
         console.log('[INFO]: Success write VaultAddressObj to file: ' + vaultAddressFilename)
       });
-    })
 
+      return deployAddress
+    })
 };

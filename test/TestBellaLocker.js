@@ -1,4 +1,5 @@
 const Utils = require("./utils/Utils.js");
+const timeMachine = require("./utils/TimeMachine.js");
 
 jest.setTimeout(300000);
 
@@ -101,7 +102,7 @@ describe('Test BellaLocker Normal', () => {
     // });
 
     it('user can lock again 30 days pool', async () => {
-        await Utils.timeTravel(10 * day);
+        await timeMachine.advanceTimeAndBlock(10 * day);
         await send(locker, 'lock', [web3.utils.toWei("15000"), 0], { from: user });
         let lockedAmount = await call(locker, 'getUserLockedBelByType', [user, 0]);
         Utils.assertApproxBNEq(lockedAmount, web3.utils.toWei("27405"), "1000000")
@@ -115,7 +116,7 @@ describe('Test BellaLocker Normal', () => {
     });
 
     it('user can withdraw after 30 days', async () => {
-        await Utils.timeTravel(25 * day);
+        await timeMachine.advanceTimeAndBlock(25 * day);
         let lockedAmount = await call(locker, 'getUserLockedBelByType', [user, 0]);
         Utils.assertApproxBNEq(lockedAmount, web3.utils.toWei("15225"), "1000000");
         let unlocked = await call(locker, 'getUserUnlockedBelByType', [user, 0]);

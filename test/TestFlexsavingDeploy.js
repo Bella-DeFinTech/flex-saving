@@ -3,7 +3,7 @@ const deploy = require("./lib/Deploy.js");
 jest.setTimeout(300000);
 
 describe('Test BellaFlexsaving Deploy', () => {
-    it('can deploy', async () => {
+    it('can deploy all token vault and strategy', async () => {
         await deploy(saddle, accounts[0], accounts)
         console.log("deployed success!");
     });
