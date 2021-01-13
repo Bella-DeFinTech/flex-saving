@@ -1,7 +1,7 @@
 const AssertionUtils = require("./utils/AssertionUtils.js");
 const timeMachine = require("./utils/TimeMachine.js");
 
-jest.setTimeout(300000);
+jest.setTimeout(30 * 60 * 1000);
 
 describe('Test BellaLocker Normal', () => {
 

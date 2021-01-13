@@ -8,7 +8,7 @@ const BigNumber = require('bn.js');
 const curvePoolConstant = require('./const/CurvePool.js');
 const tokenAddress = require('./const/Token.js');
 
-jest.setTimeout(300000)
+jest.setTimeout(30 * 60 * 1000);
 
 describe('Test BellaFlexsaving Strategy, take USDT for example', () => {
 

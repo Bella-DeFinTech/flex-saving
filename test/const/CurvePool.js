@@ -92,10 +92,10 @@ function ContractTrx() {
             await AccountUtils.giveERC20Token(poolParam.POOL_TOKEN[inIndex], testSender, inAmount)
             await AccountUtils.doApprove(poolParam.POOL_TOKEN[inIndex], testSender, curve3poolAddress, 0)
             await AccountUtils.doApprove(poolParam.POOL_TOKEN[inIndex], testSender, curve3poolAddress, inAmount)
-            let outTokenAmount0 = await AccountUtils.balanceOfERC20Token(poolParam.POOL_TOKEN[outIndex], testSender)
+            let outTokenAmountBefore = await AccountUtils.balanceOfERC20Token(poolParam.POOL_TOKEN[outIndex], testSender)
             await curve3poolInstance.methods.exchange(inIndex, outIndex, inAmount, 0).send({ from: testSender, gas: 500000 })
-            let outTokenAmount = await AccountUtils.balanceOfERC20Token(poolParam.POOL_TOKEN[outIndex], testSender)
-            return new BigNumber(outTokenAmount).sub(new BigNumber(outTokenAmount0))
+            let outTokenAmountAfter = await AccountUtils.balanceOfERC20Token(poolParam.POOL_TOKEN[outIndex], testSender)
+            return new BigNumber(outTokenAmountAfter).sub(new BigNumber(outTokenAmountBefore))
         })
     },
     this.addLiquidity = async (tokenAmounts) => {
@@ -107,10 +107,10 @@ function ContractTrx() {
                     await AccountUtils.doApprove(poolParam.POOL_TOKEN[index], testSender, curve3poolAddress, tokenAmounts[index])
                 }
             }
-            let outTokenAmount0 = await AccountUtils.balanceOfERC20Token(poolParam.LP_TOKEN, testSender)
+            let poolTokenAmountBefore = await AccountUtils.balanceOfERC20Token(poolParam.LP_TOKEN, testSender)
             await curve3poolInstance.methods.add_liquidity(tokenAmounts.map((value) => value.toString()), 0).send({ from: testSender, gas: 500000 })
-            let outTokenAmount = await AccountUtils.balanceOfERC20Token(poolParam.LP_TOKEN, testSender)
-            return new BigNumber(outTokenAmount).sub(new BigNumber(outTokenAmount0))
+            let poolTokenAmountAfter = await AccountUtils.balanceOfERC20Token(poolParam.LP_TOKEN, testSender)
+            return new BigNumber(poolTokenAmountAfter).sub(new BigNumber(poolTokenAmountBefore))
         })
     }
 }

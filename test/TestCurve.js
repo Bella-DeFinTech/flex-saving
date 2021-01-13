@@ -7,7 +7,7 @@ const curvePoolConstant = require('./const/CurvePool.js');
 // don't capture console
 const console = require('console');
 
-jest.setTimeout(300000);
+jest.setTimeout(30 * 60 * 1000);
 
 describe('Test Curve Stable Pool simulation views', () => {
     let curve
