@@ -1,39 +1,5 @@
 const BigNumber = require('bn.js');
 
-let gasLogger = {};
-let gasLoggerNum = {};
-
-web3.eth.extend({
-  methods: [{
-    name: 'unlockAccount',
-    call: 'evm_unlockUnknownAccount',
-    params: 1,
-    inputFormatter: [web3.extend.formatters.inputAddressFormatter]
-  }]
-})
-
-async function gasLog(logTo, targetPromise) {
-  let tx = await targetPromise;
-  gasUsed = tx.receipt.gasUsed;
-
-  if (gasLogger[logTo] == undefined) {
-    gasLogger[logTo] = gasUsed;
-    gasLoggerNum[logTo] = 1;
-  }
-  else {
-    gasLogger[logTo] = (gasLogger[logTo]) / (gasLoggerNum[logTo] + 1) + gasUsed / (gasLoggerNum[logTo] + 1);
-    gasLoggerNum[logTo]++;
-  }
-}
-
-async function printGasLog() {
-  console.log(gasLogger);
-}
-
-unlockAccount = async (address) => {
-  return web3.eth.unlockAccount(address)
-}
-
 function assertBNEq(received, expected) {
   let _a = new BigNumber(received);
   let _b = new BigNumber(expected);
@@ -46,8 +12,8 @@ function assertBNEq(received, expected) {
 }
 
 function assertApproxBNEq(received, expected, denominator) {
-  let _a = new BigNumber(received).div(denominator);
-  let _b = new BigNumber(expected).div(denominator);
+  let _a = new BigNumber(received).div(new BigNumber(denominator));
+  let _b = new BigNumber(expected).div(new BigNumber(denominator));
   try {
     expect(_a.toString()).toEqual(_b.toString());
   } catch (error) {
@@ -81,11 +47,6 @@ function assertNEqBN(received, expected) {
 }
 
 module.exports = {
-  gasLogger,
-  gasLoggerNum,
-  gasLog,
-  printGasLog,
-  unlockAccount,
   assertBNEq,
   assertApproxBNEq,
   assertBNGt,

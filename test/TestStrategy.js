@@ -1,8 +1,12 @@
-const Utils = require("./utils/Utils.js")
+const AssertionUtils = require("./utils/AssertionUtils.js")
+const AccountUtils = require("./utils/AccountUtils.js")
+const BNUtils = require("./utils/BNUtils.js");
 const timeMachine = require("./utils/TimeMachine.js")
 const deploy = require("./lib/Deploy.js");
 const CurvePool = require("./lib/CurvePool.js");
 const BigNumber = require('bn.js');
+const curvePoolConstant = require('./const/CurvePool.js');
+const tokenAddress = require('./const/Token.js');
 
 jest.setTimeout(300000)
 
@@ -17,25 +21,15 @@ describe('Test BellaFlexsaving Strategy, take USDT for example', () => {
     let strategyTokenHolder
     beforeAll(async (done) => {
         let deployAddress = await deploy(saddle, accounts[0], accounts, [0])
-        strategyAddress = deployAddress.strategy.usdt
-        strategyTokenAddress = deployAddress.token.usdt
-        strategyTokenHolder = deployAddress.tokenHolder.usdt
-        strategy = await saddle.getContractAt('StrategyDai', strategyAddress)
+        strategyAddress = deployAddress.strategy.USDT
+        strategyTokenAddress = tokenAddress.USDT.token
+        strategyTokenHolder = tokenAddress.USDT.tokenHolder
+        strategy = await saddle.getContractAt('StrategyUsdt', strategyAddress)
         strategyToken = await saddle.getContractAt('IERC20', strategyTokenAddress)
-        // console.log(await call(strategyToken, 'balanceOf', [strategyTokenHolder]))
-        web3.eth.getBalance(governance)
-            .then((balance) => {
-                console.log("ETH Balance: " + balance)
-            })
         // unlock unknown account for transaction
-        await Utils.unlockAccount(strategyTokenHolder)
+        await AccountUtils.unlockAccount(strategyTokenHolder)
         // prepare strategyTokenHolder eth for gas from test account
-        await web3.eth.sendTransaction({
-            from: governance,
-            to: strategyTokenHolder,
-            value: web3.utils.toWei("1"),
-            gas: 23000
-        })
+        await AccountUtils.give10ETH(strategyTokenHolder)
         done()
     })
 
@@ -50,22 +44,20 @@ describe('Test BellaFlexsaving Strategy, take USDT for example', () => {
         await timeMachine.revertToSnapshot(snapshotId);
     });
 
-
     describe('Test Strategy deposit', () => {
         let curve
         beforeAll(async (done) => {
             // Pre-test conditions 
             // block #11553066
-            const A = new BigNumber(200)
-            const balances = [new BigNumber('49207411069167985957092526'), new BigNumber('75336433192389'), new BigNumber('105376210353127')]
-            const admin_balances = [new BigNumber('19417477913988179088561'), new BigNumber('21344641050'), new BigNumber('27649688613')]
-            const n = new BigNumber(3)
-            const p = [new BigNumber('1000000000000000000'), new BigNumber('1000000000000000000000000000000'), new BigNumber('1000000000000000000000000000000')]
-            const tokens = new BigNumber('228526126556750785648667813')
-            curve = new CurvePool(A, balances, admin_balances, n, p, tokens)
+            const blockInput = curvePoolConstant.input.atBlock('11553066')
+            const A = await blockInput.A()
+            const balances = await blockInput.balances()
+            const admin_balances = await blockInput.admin_balances()
+            const tokens = await blockInput.tokens()
+            curve = new CurvePool(A, balances, admin_balances, tokens)
             // When Flex Savings USDT Strategy deposits 10,000 USDT to Curve 3pool
             // prepare strategy Token balance(10000 USDT) from strategyTokenHolder
-            send(strategyToken, 'transfer', [strategy._address, new BigNumber("10000").mul(new BigNumber(10).pow(new BigNumber(6))).toString()], { from: strategyTokenHolder }).then(() => {
+            send(strategyToken, 'transfer', [strategy._address, BNUtils.mul10pow(new BigNumber('10000'), 6).toString()], { from: strategyTokenHolder }).then((res) => {
                 console.log("Token distributed")
                 done()
             })
@@ -75,13 +67,12 @@ describe('Test BellaFlexsaving Strategy, take USDT for example', () => {
             // do deposit
             await send(strategy, 'deposit', [], { from: governance })
             let investmentStrategyTokenAmount = await call(strategy, 'balanceInPool')
-            console.log("balanceInPool: " + investmentStrategyTokenAmount)
             // run simulation
-            let expected3crvAmount = curve.add_liquidity([new BigNumber('0'), new BigNumber('0'), new BigNumber('10000000000')])
+            let expected3crvAmount = curve.add_liquidity([new BigNumber('0'), new BigNumber('0'), BNUtils.mul10pow(new BigNumber('10000'), 6)])
             let expectedVirtualPrice = curve.get_virtual_price()
             let expectedInvestmentStrategyTokenAmount = expected3crvAmount.mul(expectedVirtualPrice).div(new BigNumber(10).pow(new BigNumber(18)))
             // assert investmentStrategyTokenAmount equals expected
-            Utils.assertBNEq(expectedInvestmentStrategyTokenAmount, new BigNumber(investmentStrategyTokenAmount))
+            AssertionUtils.assertBNEq(expectedInvestmentStrategyTokenAmount, new BigNumber(investmentStrategyTokenAmount))
         })
     })
 })
