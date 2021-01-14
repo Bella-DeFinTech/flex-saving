@@ -1,27 +1,23 @@
-let gasLogger = {};
-let gasLoggerNum = {};
+let gasLogger = {}
+let gasLoggerNum = {}
 
-async function gasLog(logTo, targetPromise) {
-  let tx = await targetPromise;
-  gasUsed = tx.receipt.gasUsed;
-
-  if (gasLogger[logTo] == undefined) {
-    gasLogger[logTo] = gasUsed;
-    gasLoggerNum[logTo] = 1;
+async function logTrxGasUsed(id, trxReceipt) {
+  let gasUsed = trxReceipt.gasUsed
+  if (gasLogger[id] == undefined) {
+    gasLogger[id] = gasUsed
+    gasLoggerNum[id] = 1
   }
   else {
-    gasLogger[logTo] = (gasLogger[logTo]) / (gasLoggerNum[logTo] + 1) + gasUsed / (gasLoggerNum[logTo] + 1);
-    gasLoggerNum[logTo]++;
+    gasLoggerNum[id]++
+    gasLogger[id] = Math.floor((gasLogger[id] + gasUsed) / gasLoggerNum[id])
   }
 }
 
 async function printGasLog() {
-  console.log(gasLogger);
+  console.log(gasLogger)
 }
 
 module.exports = {
-  gasLogger,
-  gasLoggerNum,
-  gasLog,
+  logTrxGasUsed,
   printGasLog
-};
+}

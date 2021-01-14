@@ -263,12 +263,12 @@ CurvePool.prototype.remove_liquidity_imbalance = function (token_amounts) {
     return token_amount
 }
 
-CurvePool.prototype.mint_token = function (token_amount) {
-    this.total_supply.iadd(token_amount)
+CurvePool.prototype.mint_token = function (pool_token_amount) {
+    this.total_supply.iadd(pool_token_amount)
 }
 
-CurvePool.prototype.burn_token = function (token_amount) {
-    this.total_supply.isub(token_amount)
+CurvePool.prototype.burn_token = function (pool_token_amount) {
+    this.total_supply.isub(pool_token_amount)
 }
 
 module.exports = CurvePool
