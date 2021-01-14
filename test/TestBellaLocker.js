@@ -1,6 +1,7 @@
-const Utils = require("./utils/Utils.js");
+const AssertionUtils = require("./utils/AssertionUtils.js");
+const timeMachine = require("./utils/TimeMachine.js");
 
-jest.setTimeout(300000);
+jest.setTimeout(30 * 60 * 1000);
 
 describe('Test BellaLocker Normal', () => {
 
@@ -65,7 +66,7 @@ describe('Test BellaLocker Normal', () => {
     it('other user can lock', async () => {
         await send(locker, 'lock', [web3.utils.toWei("15000"), 0], { from: userBackground });
         let remain = await call(locker, 'getCurrTypeAmountRemain', [0]);
-        Utils.assertBNEq(remain, web3.utils.toWei("35000"))
+        AssertionUtils.assertBNEq(remain, web3.utils.toWei("35000"))
         console.log("Background user locked");
     });
 
@@ -73,11 +74,11 @@ describe('Test BellaLocker Normal', () => {
     it('user can lock 30 days pool', async () => {
         await send(locker, 'lock', [web3.utils.toWei("12000"), 0], { from: user });
         let lockedAmount = await call(locker, 'getUserLockedBelByType', [user, 0]);
-        Utils.assertApproxBNEq(lockedAmount, web3.utils.toWei("12180"), "1000000")
+        AssertionUtils.assertApproxBNEq(lockedAmount, web3.utils.toWei("12180"), "1000000")
         let remain = await call(locker, 'getCurrTypeAmountRemain', [0]);
-        Utils.assertBNEq(remain, web3.utils.toWei("23000"));
+        AssertionUtils.assertBNEq(remain, web3.utils.toWei("23000"));
         let unlocked = await call(locker, 'getUserUnlockedBelByType', [user, 0]);
-        Utils.assertBNEq(unlocked, 0);
+        AssertionUtils.assertBNEq(unlocked, 0);
     });
 
     // it('user can not lock too much', async () => {
@@ -101,38 +102,38 @@ describe('Test BellaLocker Normal', () => {
     // });
 
     it('user can lock again 30 days pool', async () => {
-        await Utils.timeTravel(10 * day);
+        await timeMachine.advanceTimeAndBlock(10 * day);
         await send(locker, 'lock', [web3.utils.toWei("15000"), 0], { from: user });
         let lockedAmount = await call(locker, 'getUserLockedBelByType', [user, 0]);
-        Utils.assertApproxBNEq(lockedAmount, web3.utils.toWei("27405"), "1000000")
+        AssertionUtils.assertApproxBNEq(lockedAmount, web3.utils.toWei("27405"), "1000000")
         let remain = await call(locker, 'getCurrTypeAmountRemain', [0]);
-        Utils.assertBNEq(remain, web3.utils.toWei("8000"));
+        AssertionUtils.assertBNEq(remain, web3.utils.toWei("8000"));
         let unlocked = await call(locker, 'getUserUnlockedBelByType', [user, 0]);
-        Utils.assertBNEq(unlocked, 0);
+        AssertionUtils.assertBNEq(unlocked, 0);
 
         let totalUnlocked = await call(locker, 'getUserTotalUnlockedBel', [user]);
-        Utils.assertBNEq(totalUnlocked, 0);
+        AssertionUtils.assertBNEq(totalUnlocked, 0);
     });
 
     it('user can withdraw after 30 days', async () => {
-        await Utils.timeTravel(25 * day);
+        await timeMachine.advanceTimeAndBlock(25 * day);
         let lockedAmount = await call(locker, 'getUserLockedBelByType', [user, 0]);
-        Utils.assertApproxBNEq(lockedAmount, web3.utils.toWei("15225"), "1000000");
+        AssertionUtils.assertApproxBNEq(lockedAmount, web3.utils.toWei("15225"), "1000000");
         let unlocked = await call(locker, 'getUserUnlockedBelByType', [user, 0]);
-        Utils.assertBNEq(unlocked, web3.utils.toWei("12180"));
+        AssertionUtils.assertBNEq(unlocked, web3.utils.toWei("12180"));
         let totalUnlocked = await call(locker, 'getUserTotalUnlockedBel', [user]);
-        Utils.assertBNEq(totalUnlocked, web3.utils.toWei("12180"));
+        AssertionUtils.assertBNEq(totalUnlocked, web3.utils.toWei("12180"));
 
         let balanceBefore = await call(bella, 'balanceOf', [user]);
         await send(locker, 'withdraw', [0], { from: user });
         let balanceAfter = await call(bella, 'balanceOf', [user]);
-        Utils.assertBNEq(web3.utils.toBN(balanceAfter).sub(web3.utils.toBN(balanceBefore)), web3.utils.toWei("12180"));
+        AssertionUtils.assertBNEq(web3.utils.toBN(balanceAfter).sub(web3.utils.toBN(balanceBefore)), web3.utils.toWei("12180"));
 
         unlocked = await call(locker, 'getUserUnlockedBelByType', [user, 0]);
-        Utils.assertBNEq(unlocked, 0);
+        AssertionUtils.assertBNEq(unlocked, 0);
 
         totalUnlocked = await call(locker, 'getUserTotalUnlockedBel', [user]);
-        Utils.assertBNEq(totalUnlocked, 0);
+        AssertionUtils.assertBNEq(totalUnlocked, 0);
     });
 
     // it('user can withdraw 30 days and 120 days after 120 days', async () => {

@@ -60,11 +60,11 @@ module.exports = {
           transactionBlockTimeout: 5
         }
       },
-      accounts: [
-        // {env: "ACCOUNT"},
-        // {unlocked: 0}
-        { file: ".ganache/accounts" },
-      ]
+      // accounts: [
+      //   // {env: "ACCOUNT"},
+      //   // {unlocked: 0}
+      //   // { file: ".ganache/accounts" },
+      // ]
     },
     rinkeby: {
       providers: [
