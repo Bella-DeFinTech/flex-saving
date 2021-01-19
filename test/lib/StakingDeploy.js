@@ -1,9 +1,8 @@
 const tokenAddress = require('../const/Token.js');
 const fs = require('fs');
+const console = require('console');
 
-const BellaStaking = artifacts.require("BellaStaking");
-
-module.exports = function (saddle, deployer, accounts) {
+module.exports = async function (saddle, deployer, accounts) {
     const deploy = saddle.deploy
     const send = saddle.send
     const web3 = saddle.web3
@@ -97,7 +96,6 @@ module.exports = function (saddle, deployer, accounts) {
     }
 
     console.log('[INFO]: Current account: ' + accounts[0])
-    console.log('[INFO]: Current network: ' + network)
     console.log('[INFO]: Current deployerAddress: ' + deployerAddress)
     console.log('[INFO]: Current governance: ' + governanceAddress)
 
@@ -108,13 +106,11 @@ module.exports = function (saddle, deployer, accounts) {
     addNewContent('[MIGRATE] governanceAddress: ' + governanceAddress)
     changeLine()
 
-    deploy('BellaStaking', [bellaTokenAddress, startCalculeTimestamp, deployerAddress], { from: deployer }).then(
-        () => {
-            addNewContent('[STAKING] BellaStaking contract address: \n    ' + BellaStaking.address)
+    return deploy('BellaStaking', [bellaTokenAddress, startCalculeTimestamp, deployerAddress], { from: deployer }).then(
+        (_bellaStakingInstance) => {
+            bellaStakingInstance = _bellaStakingInstance
 
-            let rawBellaStakingABI = fs.readFileSync('./build/contracts/BellaStaking.json');
-            let bellaStakingAbi = JSON.parse(rawBellaStakingABI).abi;
-            bellaStakingInstance = new web3.eth.Contract(bellaStakingAbi, BellaStaking.address)
+            addNewContent('[STAKING] BellaStaking contract address: \n    ' + bellaStakingInstance._address)
 
             return addStakingToken(bellaStakingInstance, bUsdtToken, deployerAddress)
         }).then(() => {
@@ -131,5 +127,10 @@ module.exports = function (saddle, deployer, accounts) {
             addNewContent('[STAKING] Change governance address:'
                 + '\n    from: ' + deployerAddress
                 + '\n    to: ' + governanceAddress)
+            
+            console.log('StakingContractAddress: ' + bellaStakingInstance._address)
+            return bellaStakingInstance._address
         })
+
+        
 }
