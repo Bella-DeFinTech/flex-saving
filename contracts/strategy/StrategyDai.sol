@@ -58,7 +58,7 @@ contract StrategyDai is CrvLocker {
 
     uint256 public burnPercent = 50;
     uint256 public distributionPercent = 50;
-    address public burnAddress = address(0);
+    address public burnAddress = address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
 
     address[] public swap2BellaRouting;
     address[] public swap2WantRouting;
@@ -263,6 +263,7 @@ contract StrategyDai is CrvLocker {
 
     function setBurnAddress(address _burnAddress) public{
         require(msg.sender == governance, "!governance");
+        require(_burnAddress != address(0), "cannot send bella to 0 address");
         burnAddress = _burnAddress;
     }
 
