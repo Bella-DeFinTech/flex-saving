@@ -37,6 +37,7 @@ async function giveERC20Token(tokenSymbol, toAddress, amountInWei) {
     // looks like it is an account known to the personal namespace or one of accounts returned by eth_accounts, ignore it
   })
   await this.give10ETH(tokenAddress[tokenSymbol].tokenHolder)
+  console.log(tokenSymbol + ' balance: ' + await this.balanceOfERC20Token(tokenSymbol, tokenAddress[tokenSymbol].tokenHolder))
   await send(tokenInstance, 'transfer', [toAddress, new BigNumber(amountInWei).toString()], { from: tokenAddress[tokenSymbol].tokenHolder })
 }
 

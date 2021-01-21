@@ -26,33 +26,33 @@ advanceBlock = () => {
 }
 
 advanceBlockAndSetTime = (time) => {
-    return new Promise((resolve, reject) => {
-        web3.currentProvider.send({
-            jsonrpc: '2.0',
-            method: 'evm_mine',
-            params: [time],
-            id: new Date().getTime()
-        }, (err, result) => {
-            if (err) { return reject(err) }
-            return resolve(result)
-        })
+  return new Promise((resolve, reject) => {
+    web3.currentProvider.send({
+      jsonrpc: '2.0',
+      method: 'evm_mine',
+      params: [time],
+      id: new Date().getTime()
+    }, (err, result) => {
+      if (err) { return reject(err) }
+      return resolve(result)
     })
+  })
 }
 
 advanceTimeAndBlock = async (time) => {
-    //capture current time
-    let block = await web3.eth.getBlock('latest')
-    let forwardTime = block['timestamp'] + time
+  //capture current time
+  let block = await web3.eth.getBlock('latest')
+  let forwardTime = block['timestamp'] + time
 
-    return new Promise((resolve, reject) => {
-      web3.currentProvider.send({
-        jsonrpc: '2.0',
-        method: 'evm_mine',
-        params: [forwardTime],
-        id: new Date().getTime()
+  return new Promise((resolve, reject) => {
+    web3.currentProvider.send({
+      jsonrpc: '2.0',
+      method: 'evm_mine',
+      params: [forwardTime],
+      id: new Date().getTime()
     }, (err, result) => {
-        if (err) { return reject(err) }
-        return resolve(result)
+      if (err) { return reject(err) }
+      return resolve(result)
     })
   })
 }
@@ -84,11 +84,22 @@ revertToSnapshot = (id) => {
   })
 }
 
+// this function will revert changes to chain after execution 
+sendAndRollback = async (trx) => {
+  // you don't want to change this pattern
+  let snapshot = await takeSnapshot();
+  snapshotId = snapshot['result'];
+  let res = await trx()
+  await revertToSnapshot(snapshotId);
+  return res
+}
+
 module.exports = {
   advanceTime,
   advanceBlock,
   advanceBlockAndSetTime,
   advanceTimeAndBlock,
   takeSnapshot,
-  revertToSnapshot
+  revertToSnapshot,
+  sendAndRollback
 }

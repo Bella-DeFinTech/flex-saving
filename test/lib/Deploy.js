@@ -1,4 +1,6 @@
 const tokenAddress = require('../const/Token.js');
+// Deploy Configuration - Current vault tokens
+const strategyTokens = require('../const/StrategyToken.js');
 const fs = require('fs');
 // don't capture console
 const console = require('console');
@@ -13,20 +15,9 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
   const governanceAddress = accounts[0]
   const firemanAddress = accounts[0]
   const deployerAddress = accounts[0]
-  const belTokenAddress = tokenAddress.BEL.token
+  const strategyTokenRewardsAddress = accounts[1]
 
   const arpaVaultStartTimestamp = 1606132800 // 2020/11/23 20:00
-
-  // Deploy Configuration - Current vault tokens
-  const strategyTokens = {
-    USDT: { index: 0, symbol: 'USDT', _address: tokenAddress.USDT.token },
-    USDC: { index: 1, symbol: 'USDC', _address: tokenAddress.USDC.token },
-    WBTC: { index: 2, symbol: 'WBTC', _address: tokenAddress.WBTC.token },
-    ARPA: { index: 3, symbol: 'ARPA', _address: tokenAddress.ARPA.token },
-    DAI: { index: 4, symbol: 'DAI', _address: tokenAddress.DAI.token },
-    BUSD: { index: 5, symbol: 'BUSD', _address: tokenAddress.BUSD.token },
-    HBTC: { index: 6, symbol: 'HBTC', _address: tokenAddress.HBTC.token }
-  }
 
   const deployAddress = {
     controller: '',
@@ -234,7 +225,7 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
     })
   }
 
-  return deploy('Controller', [belTokenAddress, deployerAddress, firemanAddress], { from: deployer }).then(
+  return deploy('Controller', [strategyTokenRewardsAddress, deployerAddress, firemanAddress], { from: deployer }).then(
     (_controllerInstance) => {
       controllerInstance = _controllerInstance
       deployAddress.controller = controllerInstance._address

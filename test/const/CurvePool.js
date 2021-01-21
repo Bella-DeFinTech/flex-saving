@@ -15,7 +15,10 @@ const poolParam = {
     POOL_TOKEN: {
         0: 'DAI',
         1: 'USDC',
-        2: 'USDT'
+        2: 'USDT',
+        findIndex: function (tokenSymbol, compare = (a, b) => a === b) {
+            return Object.keys(this).find(k => compare(this[k], tokenSymbol))
+        }
     },
     LP_TOKEN: '_3CRV',
     CURRENCY_NUMBER: () => new BigNumber(3),
@@ -75,20 +78,10 @@ function ContractView(blockNumber) {
 
 function ContractTrx() {
     // note that we can hardly run trx at specific block number like call function, so we need to set fork param to status we want to test before run test suites
-    // this function will revert changes to chain after execution 
-    async function sendAndRollback(trx) {
-        // you don't want to change this pattern
-        let snapshot = await timeMachine.takeSnapshot();
-        snapshotId = snapshot['result'];
-        let res = await trx()
-        await timeMachine.revertToSnapshot(snapshotId);
-        return res
-    }
-
     const testSender = accounts[0]
 
     this.exchange = async (inIndex, outIndex, inAmount) => {
-        return await sendAndRollback(async () => {
+        return await timeMachine.sendAndRollback(async () => {
             await AccountUtils.giveERC20Token(poolParam.POOL_TOKEN[inIndex], testSender, inAmount)
             await AccountUtils.doApprove(poolParam.POOL_TOKEN[inIndex], testSender, curve3poolAddress, 0)
             await AccountUtils.doApprove(poolParam.POOL_TOKEN[inIndex], testSender, curve3poolAddress, inAmount)
@@ -99,7 +92,7 @@ function ContractTrx() {
         })
     },
     this.addLiquidity = async (tokenAmounts) => {
-        return await sendAndRollback(async () => {
+        return await timeMachine.sendAndRollback(async () => {
             for (let index in tokenAmounts) {
                 if (BNUtils.isPositive(tokenAmounts[index])) {
                     await AccountUtils.giveERC20Token(poolParam.POOL_TOKEN[index], testSender, tokenAmounts[index])
