@@ -45,6 +45,8 @@ contract StrategyUsdt is CrvLocker {
     address constant public unirouter = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
     address constant public crv_minter = address(0xd061D61a4d941c39E5453435B6345Dc261C2fcE0);
 
+    uint256 constant public TO_THREE_POOL_CRV_DECIMALS = 1e12; // 1e18 3poolcrv / 1e6 usdt
+
     // 0 = dai, 1 = usdc, 2 = usdt in 3pool
     enum TokenIndexInThreePool {DAI, USDC, USDT}
     uint56 constant tokenIndexThreePool = uint56(TokenIndexInThreePool.USDT); // TODO: change according to dai/usdt/usdc
@@ -199,7 +201,7 @@ contract StrategyUsdt is CrvLocker {
     
     function _withdrawSome(uint256 _amount) internal returns (uint) {
         // withdraw 3pool crv from gauge
-        uint256 amount = _amount.mul(1e18).div(ICrvPool(threePool).get_virtual_price());
+        uint256 amount = _amount.mul(1e18).div(ICrvPool(threePool).get_virtual_price()).mul(TO_THREE_POOL_CRV_DECIMALS);
         amount = _withdrawXCurve(threePoolGauge, amount);
 
         uint256 bBefore = IERC20(want).balanceOf(address(this));
