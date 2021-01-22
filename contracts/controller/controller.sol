@@ -17,6 +17,7 @@ contract Controller {
     address public governance;
     address public onesplit;
     address public rewards;
+    address public belRewards;
     address public fireman;
     
     // token to Vault mapping
@@ -32,10 +33,11 @@ contract Controller {
     bool public paused = false;
     mapping(address => bool) public pauseRoles;
     
-    constructor(address _rewards, address _governance, address _fireman) public {
+    constructor(address _rewards, address _belRewards, address _governance, address _fireman) public {
         governance = _governance;
         onesplit = address(0x50FDA034C0Ce7a8f7EFDAebDA7Aa7cA21CC1267e);
         rewards = _rewards;
+        belRewards = _belRewards;
         fireman = _fireman;
     }
 
@@ -62,6 +64,11 @@ contract Controller {
     function setRewards(address _rewards) external {
         require(msg.sender == governance, "!governance");
         rewards = _rewards;
+    }
+
+    function setBelRewards(address _belRewards) external {
+        require(msg.sender == governance, "!governance");
+        belRewards = _belRewards;
     }
 
     function setSplit(uint256 _split) external {
