@@ -61,7 +61,7 @@ contract StrategyWbtc is CrvLocker {
 
     uint256 public burnPercent = 50;
     uint256 public distributionPercent = 50;
-    address public burnAddress = address(0);
+    address public burnAddress = address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
 
     // withdrawSome withdraw a bit more to compensate the imbalanced asset, 10000=1
     uint256 public withdrawCompensation = 30;
@@ -283,6 +283,7 @@ contract StrategyWbtc is CrvLocker {
 
     function setBurnAddress(address _burnAddress) public{
         require(msg.sender == governance, "!governance");
+        require(_burnAddress != address(0), "cannot send bella to 0 address");
         burnAddress = _burnAddress;
     }
 

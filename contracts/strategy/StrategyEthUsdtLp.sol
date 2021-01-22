@@ -61,7 +61,7 @@ contract StrategyETH_USDT_LP {
     
     address public governance;
     address public controller;
-    address public burnAddress = address(0);
+    address public burnAddress = address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
 
     address[] public swap2BellaRouting; // weth -> bella
     address[] public swap2TokenRouting; // uni -> weth
@@ -242,6 +242,7 @@ contract StrategyETH_USDT_LP {
 
     function setBurnAddress(address _burnAddress) public{
         require(msg.sender == governance, "!governance");
+        require(_burnAddress != address(0), "cannot send bella to 0 address");
         burnAddress = _burnAddress;
     }
 
