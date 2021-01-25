@@ -59,7 +59,10 @@ contract StrategyHbtc is CrvLocker {
 
     uint256 public burnPercent = 50;
     uint256 public distributionPercent = 50;
-    address public burnAddress = address(0);
+    address public burnAddress = address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
+
+    // withdrawSome withdraw a bit more to compensate the imbalanced asset, 10000=1
+    uint256 public withdrawCompensation = 30;
 
     address[] public swap2BellaRouting;
     address[] public swap2WBTCRouting;
@@ -216,7 +219,8 @@ contract StrategyHbtc is CrvLocker {
     
     function _withdrawSome(uint256 _amount) internal returns (uint) {
         // withdraw hBTC pool crv from gauge
-        uint256 amount = _amount.mul(1e18).div(ICrvPool2Coins(hBTCPool).get_virtual_price());
+        uint256 amount = _amount.mul(1e18).div(ICrvPool2Coins(hBTCPool).get_virtual_price())
+            .mul(10000 + withdrawCompensation).div(10000);
         amount = _withdrawXCurve(hBTCGauge, amount);
 
         uint256 bBefore = IERC20(want).balanceOf(address(this));
@@ -280,7 +284,14 @@ contract StrategyHbtc is CrvLocker {
 
     function setBurnAddress(address _burnAddress) public{
         require(msg.sender == governance, "!governance");
+        require(_burnAddress != address(0), "cannot send bella to 0 address");
         burnAddress = _burnAddress;
+    }
+
+    function setWithdrawCompensation(uint256 _withdrawCompensation) public {
+        require(msg.sender == governance, "!governance");
+        require(_withdrawCompensation <= 100, "too much compensation");
+        withdrawCompensation = _withdrawCompensation;
     }
 
     /**

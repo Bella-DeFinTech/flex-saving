@@ -45,6 +45,8 @@ contract StrategyWbtc is CrvLocker {
     address constant public crv_minter = address(0xd061D61a4d941c39E5453435B6345Dc261C2fcE0);
     address constant public wBTC = address(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599); // wBTC (used to convert from crv to hCrv)
 
+    uint256 constant public TO_HCRV_DECIMALS = 1e10; // 1e18 hCrv / 1e8 wbtc
+
     // 0 = hBTC, 1 = wBTC in hBTC pool
     enum TokenIndexInHBTCPool {HBTC, WBTC}
     uint56 constant tokenIndexHBTCPool = uint56(TokenIndexInHBTCPool.WBTC); // TODO: change according to hBTC/wBTC
@@ -59,7 +61,10 @@ contract StrategyWbtc is CrvLocker {
 
     uint256 public burnPercent = 50;
     uint256 public distributionPercent = 50;
-    address public burnAddress = address(0);
+    address public burnAddress = address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
+
+    // withdrawSome withdraw a bit more to compensate the imbalanced asset, 10000=1
+    uint256 public withdrawCompensation = 30;
 
     address[] public swap2BellaRouting;
     address[] public swap2WBTCRouting;
@@ -212,7 +217,9 @@ contract StrategyWbtc is CrvLocker {
     
     function _withdrawSome(uint256 _amount) internal returns (uint) {
         // withdraw hBTC pool crv from gauge
-        uint256 amount = _amount.mul(1e18).div(ICrvPool2Coins(hBTCPool).get_virtual_price());
+        uint256 amount = _amount.mul(1e18).div(ICrvPool2Coins(hBTCPool).get_virtual_price())
+            .mul(TO_HCRV_DECIMALS)
+            .mul(10000 + withdrawCompensation).div(10000);
         amount = _withdrawXCurve(hBTCGauge, amount);
 
         uint256 bBefore = IERC20(want).balanceOf(address(this));
@@ -276,7 +283,14 @@ contract StrategyWbtc is CrvLocker {
 
     function setBurnAddress(address _burnAddress) public{
         require(msg.sender == governance, "!governance");
+        require(_burnAddress != address(0), "cannot send bella to 0 address");
         burnAddress = _burnAddress;
+    }
+
+    function setWithdrawCompensation(uint256 _withdrawCompensation) public {
+        require(msg.sender == governance, "!governance");
+        require(_withdrawCompensation <= 100, "too much compensation");
+        withdrawCompensation = _withdrawCompensation;
     }
 
     /**
