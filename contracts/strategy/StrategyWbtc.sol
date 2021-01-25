@@ -248,7 +248,9 @@ contract StrategyWbtc is CrvLocker {
     }
     
     function balanceInPool() public view returns (uint256) {
-        return ICrvDeposit(hBTCGauge).balanceOf(address(this)).mul(ICrvPool2Coins(hBTCPool).get_virtual_price()).div(1e18);
+        return ICrvDeposit(hBTCGauge).balanceOf(address(this))
+            .mul(ICrvPool2Coins(hBTCPool).get_virtual_price()).div(1e18)
+            .div(TO_HCRV_DECIMALS);
     }
     
     function setGovernance(address _governance) external {
