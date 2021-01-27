@@ -134,7 +134,7 @@ contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
         _mint(msg.sender, shares);
     }
 
-    function withdraw(uint _shares) public notPaused nonReentrant {
+    function withdraw(uint _shares) external notPaused nonReentrant {
         _withdraw(msg.sender, _shares);
     }
 
