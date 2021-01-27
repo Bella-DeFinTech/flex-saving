@@ -235,7 +235,9 @@ contract StrategyUsdt is CrvLocker {
     }
     
     function balanceInPool() public view returns (uint256) {
-        return ICrvDeposit(threePoolGauge).balanceOf(address(this)).mul(ICrvPool(threePool).get_virtual_price()).div(1e18);
+        return ICrvDeposit(threePoolGauge).balanceOf(address(this))
+            .mul(ICrvPool(threePool).get_virtual_price()).div(1e18)
+            .div(TO_THREE_POOL_CRV_DECIMALS);
     }
     
     function setGovernance(address _governance) external {
