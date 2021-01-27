@@ -16,6 +16,7 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
   const firemanAddress = accounts[0]
   const deployerAddress = accounts[0]
   const strategyTokenRewardsAddress = accounts[1]
+  const belTokenRewardsAddress = accounts[1]
 
   const arpaVaultStartTimestamp = 1606132800 // 2020/11/23 20:00
 
@@ -225,7 +226,7 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
     })
   }
 
-  return deploy('Controller', [strategyTokenRewardsAddress, deployerAddress, firemanAddress], { from: deployer }).then(
+  return deploy('Controller', [strategyTokenRewardsAddress, belTokenRewardsAddress, deployerAddress, firemanAddress], { from: deployer }).then(
     (_controllerInstance) => {
       controllerInstance = _controllerInstance
       deployAddress.controller = controllerInstance._address
