@@ -135,32 +135,36 @@ contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
     }
 
     function withdraw(uint _shares) public notPaused nonReentrant {
+        _withdraw(msg.sender, _shares);
+    }
+
+    function withdrawAll() external notPaused nonReentrant {
+        _withdraw(msg.sender, balanceOf(msg.sender));
+    }
+
+    function getPricePerFullShare() public view returns (uint) {
+        return balance().mul(1e18).div(totalSupply());
+    }
+
+    function _withdraw(address user, uint _shares) private {
         uint r = (balance().mul(_shares)).div(totalSupply());
 
-        _burn(msg.sender, _shares);
+        _burn(user, _shares);
 
         // Check balance
         uint b = token.balanceOf(address(this));
         if (b < r) {
-            uint _withdraw = r.sub(b);
-            IController(controller).withdraw(address(token), _withdraw);
+            uint w = r.sub(b);
+            IController(controller).withdraw(address(token), w);
             uint _after = token.balanceOf(address(this));
             uint _diff = _after.sub(b);
-            if (_diff < _withdraw) {
+            if (_diff < w) {
                 r = b.add(_diff);
             }
         }
         
         uint _fee = r.mul(withdrawalFee).div(withdrawalMax);
         token.safeTransfer(IController(controller).rewards(), _fee);
-        token.safeTransfer(msg.sender, r.sub(_fee));
-    }
-
-    function withdrawAll() external notPaused nonReentrant {
-        withdraw(balanceOf(msg.sender));
-    }
-
-    function getPricePerFullShare() public view returns (uint) {
-        return balance().mul(1e18).div(totalSupply());
+        token.safeTransfer(user, r.sub(_fee));
     }
 }
