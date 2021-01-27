@@ -6,5 +6,6 @@ interface IController {
     function balanceOf(address) external view returns (uint);
     function earn(address, uint) external;
     function rewards() external view returns (address);
+    function belRewards() external view returns (address);
     function paused() external view returns (bool);
 }

@@ -170,7 +170,7 @@ contract StrategyHbtc is CrvLocker {
         uint burn = bellaBalance.mul(burnPercent).div(100);
         uint distribution = bellaBalance.mul(distributionPercent).div(100);
         
-        IERC20(bella).safeTransfer(IController(controller).rewards(), distribution);
+        IERC20(bella).safeTransfer(IController(controller).belRewards(), distribution);
         IERC20(bella).safeTransfer(burnAddress, burn); 
     }
     
