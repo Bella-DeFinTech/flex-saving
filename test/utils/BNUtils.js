@@ -10,6 +10,10 @@ function mul10pow(bn, n) {
   return bn.mul(new BigNumber(10).pow(new BigNumber(n)))
 }
 
+function div10pow(bn, n) {
+  return bn.div(new BigNumber(10).pow(new BigNumber(n)))
+}
+
 function get10pow(n) {
   return new BigNumber(10).pow(new BigNumber(n))
 }
@@ -21,6 +25,7 @@ function isPositive(bn) {
 module.exports = {
   sum,
   mul10pow,
+  div10pow,
   get10pow,
   isPositive
 };

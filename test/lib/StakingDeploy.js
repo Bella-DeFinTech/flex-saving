@@ -1,22 +1,23 @@
 const tokenAddress = require('../const/Token.js');
 const fs = require('fs');
-const console = require('console');
+const console = require('console');
 
-module.exports = async function (saddle, deployer, accounts) {
+module.exports = async function (saddle, deployer, governance, customVaultAddressObj = {}) {
     const deploy = saddle.deploy
     const send = saddle.send
-    const web3 = saddle.web3
 
     // -----------------------PRODUCTION PARAMTERS --------------------------------
     // Configuration
-    const governanceAddress = accounts[0]
-    const deployerAddress = accounts[0]
+    const deployerAddress  = deployer
+    const governanceAddress = governance
 
     const startCalculeTimestamp = 1606132800 // 2020/11/23 20:00
 
     const bUsdtToken = { symbol: 'USDT', bSymbol: 'bUSDT', weight: 1000, boost: [115, 130, 160], withUpdate: false }
     const bUsdcToken = { symbol: 'USDC', bSymbol: 'bUSDC', weight: 1000, boost: [115, 130, 160], withUpdate: false }
     const bWbtcToken = { symbol: 'WBTC', bSymbol: 'bWBTC', weight: 1000, boost: [115, 130, 160], withUpdate: false }
+    //const bArpaToken = { symbol: 'ARPA', bSymbol: 'bARPA', weight: 1000, boost: [115, 130, 160], withUpdate: false }
+    const bDaiToken = { symbol: 'DAI', bSymbol: 'bDAI', weight: 1000, boost: [115, 130, 160], withUpdate: false }
 
     // -----------------------PRODUCTION PARAMTERS END--------------------------------
 
@@ -46,8 +47,17 @@ module.exports = async function (saddle, deployer, accounts) {
 
     function getBtokenAddress(token) {
         let vaultAddress = ''
-        let rawVaultAddressJson = fs.readFileSync(vaultAddressFilename);
-        let vaultAddressObj = JSON.parse(rawVaultAddressJson);
+        let vaultAddressObj
+
+        console.log('-----------------------------------------------------------------')
+        console.log("customVaultAddressObj" + customVaultAddressObj)
+        if (customVaultAddressObj === {}) {
+            let rawVaultAddressJson = fs.readFileSync(vaultAddressFilename);
+            vaultAddressObj = JSON.parse(rawVaultAddressJson);
+        }
+        else {
+            vaultAddressObj = customVaultAddressObj
+        }
 
         switch (token.symbol) {
             case 'USDT':
@@ -58,6 +68,12 @@ module.exports = async function (saddle, deployer, accounts) {
                 break;
             case 'WBTC':
                 vaultAddress = vaultAddressObj.bWbtc
+                break;
+            case 'ARPA':
+                vaultAddress = vaultAddressObj.bArpa
+                break;
+            case 'DAI':
+                vaultAddress = vaultAddressObj.bDai
                 break;
             default:
                 console.log('[ERROR]: Check getBtokenAddress() func in staking script, do NOT found: ' + token.symbol + " vault contract address")
@@ -95,7 +111,6 @@ module.exports = async function (saddle, deployer, accounts) {
         }
     }
 
-    console.log('[INFO]: Current account: ' + accounts[0])
     console.log('[INFO]: Current deployerAddress: ' + deployerAddress)
     console.log('[INFO]: Current governance: ' + governanceAddress)
 
@@ -120,6 +135,12 @@ module.exports = async function (saddle, deployer, accounts) {
 
             return addStakingToken(bellaStakingInstance, bWbtcToken, deployerAddress)
         }).then(() => {
+            
+        //    return addStakingToken(bellaStakingInstance, bArpaToken, deployerAddress)
+        //}).then(() => {
+
+            return addStakingToken(bellaStakingInstance, bDaiToken, deployerAddress)
+        }).then(() => {
 
             return send(bellaStakingInstance, 'transferOwnership', [governanceAddress], { from: deployerAddress })
         }).then(() => {
@@ -127,10 +148,10 @@ module.exports = async function (saddle, deployer, accounts) {
             addNewContent('[STAKING] Change governance address:'
                 + '\n    from: ' + deployerAddress
                 + '\n    to: ' + governanceAddress)
-            
+
             console.log('StakingContractAddress: ' + bellaStakingInstance._address)
             return bellaStakingInstance._address
         })
 
-        
+
 }
