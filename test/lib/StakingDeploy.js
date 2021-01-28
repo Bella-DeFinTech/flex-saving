@@ -2,7 +2,7 @@ const tokenAddress = require('../const/Token.js');
 const fs = require('fs');
 const console = require('console');
 
-module.exports = async function (saddle, deployer, governance, customVaultAddressObj = {}) {
+module.exports = async function (saddle, deployer, governance, customVaultAddressObj = {}, prodTimestamp = true) {
     const deploy = saddle.deploy
     const send = saddle.send
 
@@ -11,7 +11,9 @@ module.exports = async function (saddle, deployer, governance, customVaultAddres
     const deployerAddress  = deployer
     const governanceAddress = governance
 
-    const startCalculeTimestamp = 1606132800 // 2020/11/23 20:00
+    const startCalculeTimestamp = prodTimestamp ? 1606132800 : web3.eth.getBlock(11690921).timestamp // 2020/11/23 20:00
+
+    console.log('[INFO]: start timestem: ' + startCalculeTimestamp)
 
     const bUsdtToken = { symbol: 'USDT', bSymbol: 'bUSDT', weight: 1000, boost: [115, 130, 160], withUpdate: false }
     const bUsdcToken = { symbol: 'USDC', bSymbol: 'bUSDC', weight: 1000, boost: [115, 130, 160], withUpdate: false }
