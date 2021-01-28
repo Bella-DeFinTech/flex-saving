@@ -36,11 +36,11 @@ contract StrategyArpa {
     TokenPool public lockedPool;
 
     // period to release all the arpa in the locked pool
-    uint256 currentUnlockCycle;
+    uint256 public currentUnlockCycle;
     // initial arpa rewards unlock time
-    uint256 startTime;
+    uint256 public startTime;
     // last arpa rewards unlock time
-    uint256 lastUnlockTime;
+    uint256 public lastUnlockTime;
     
     constructor(address _controller, address _governance, uint256 _startTime) public {
         governance = _governance;
