@@ -183,7 +183,7 @@ CurvePool.prototype.admin_balances = function () {
 CurvePool.prototype.exchange = function (in_index, out_index, in_token_amount) {
     // we assume no unexpected charge of a fee on transfer (USDT, PAXG)
     let xp = this.xp()
-    let x = xp[in_index].add(in_token_amount).mul(this.CURRENCY_RATES[in_index]).div(this.PRECISION)
+    let x = xp[in_index].add(in_token_amount.mul(this.CURRENCY_RATES[in_index]).div(this.PRECISION))
     let y = this.y(in_index, out_index, x)
     let dy = xp[out_index].sub(y).subn(1) // -1 just in case there were some rounding errors
     let fee = dy.mul(this.EXCHANGE_FEE).div(this.FEE_DENOMINATOR)

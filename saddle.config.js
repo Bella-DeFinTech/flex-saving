@@ -6,14 +6,14 @@ module.exports = {
     '--allow-paths', 'contracts'
   ],                                        // Extra solc args
   solc_shell_args: {                                    // Args passed to `exec`, see:
-    maxBuffer: 1024 * 5000                              // https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options
+    maxBuffer: 1024 * 1024 * 10                              // https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options
   },
   build_dir: ".build",                                  // Directory to place built contracts
   extra_build_files: [],                                // Additional build files to deep merge
   coverage_dir: "coverage",                             // Directory to place coverage files
   coverage_ignore: [],                                  // List of files to ignore for coverage
   contracts: process.env['SADDLE_CONTRACTS'] || 'contracts/**/*.sol',                         // Glob to match contract files
-  tests: ['**/test/*.js'],                             // Glob to match test files
+  tests: ['**/test/TestStrategy.js'],                             // Glob to match test files
   trace: false,                                         // Compile with debug artifacts
   networks: {                                           // Define configuration for each network
     development: {

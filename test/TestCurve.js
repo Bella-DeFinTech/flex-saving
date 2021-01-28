@@ -11,10 +11,9 @@ jest.setTimeout(30 * 60 * 1000);
 
 describe('Test Curve Stable Pool simulation views', () => {
     let curve
-    let contractView = curvePoolConstant.view.atBlock('11553066')
+    let contractView = curvePoolConstant.view.atBlock('latest')
     beforeAll(async () => {
-        // block #11553066
-        const blockInput = curvePoolConstant.input.atBlock('11553066')
+        const blockInput = curvePoolConstant.input.atBlock('latest')
         const A = await blockInput.A()
         const balances = await blockInput.balances()
         const admin_balances = await blockInput.admin_balances()
@@ -32,7 +31,7 @@ describe('Test Curve Stable Pool simulation views', () => {
 
     it('can get accurate token total supply', async () => {
         let totalSupply = curve.get_total_supply()
-        // console.log("total_supply: " + total_supply)
+        // console.log("total_supply: " + totalSupply)
         let expectedTotalSupply = await contractView.totalSupply()
         AssertionUtils.assertBNEq(totalSupply, expectedTotalSupply.toString()) //'228526126556750785648667813'
     })
@@ -66,8 +65,7 @@ describe('Test Curve Stable Pool simulation trxs', () => {
     let curve
     let contractTrx = curvePoolConstant.trx.latest()
     beforeEach(async () => {
-        // block #11553066
-        const blockInput = curvePoolConstant.input.atBlock('11553066')
+        const blockInput = curvePoolConstant.input.atBlock('latest')
         const A = await blockInput.A()
         const balances = await blockInput.balances()
         const admin_balances = await blockInput.admin_balances()
@@ -188,32 +186,99 @@ describe('Test Curve Stable Pool simulation trxs', () => {
 
 // })
 
-// describe('decide what to use when withdraw token from pool', () => {
-//     let curve1
-//     beforeEach(() => {
-//         const A1 = new BigNumber(200)
-//         const balances1 = [new BigNumber('49207411069167985957092526'), new BigNumber('75336433192389'), new BigNumber('105376210353127')]
-//         const admin_balances1 = [new BigNumber('19417477913988179088561'), new BigNumber('21344641050'), new BigNumber('27649688613')]
-//         const tokens1 = new BigNumber('228526126556750785648667813')
-//         curve1 = new CurvePool(A1, balances1, admin_balances1, tokens1)
-//         console.log('we need withdraw 9500 USDT');
-//         console.log('assume a huge exchange happens, then USDT have more share in pool');
-//         curve1.exchange(1, 2, new BigNumber('10000000000000'))
-//     });
+describe('pool status in extreme circumstance', () => {
+    let curve1
+    beforeEach(() => {
+        // const A1 = new BigNumber(200)
+        // const balances1 = [new BigNumber('49207411069167985957092526'), new BigNumber('75336433192389'), new BigNumber('105376210353127')]
+        // const admin_balances1 = [new BigNumber('19417477913988179088561'), new BigNumber('21344641050'), new BigNumber('27649688613')]
+        // const tokens1 = new BigNumber('228526126556750785648667813')
+        // curve1 = new CurvePool(A1, balances1, admin_balances1, tokens1)
+    });
 
-//     it('use get_virtual_price() + remove_liquidity_one_coin()', () => {
-//         let virtual_price = curve1.get_virtual_price()
-//         console.log("virtual price: " + virtual_price)
-//         // let _3crv_to_withdraw = new BigNumber(9500).muln(1000000).mul(new BigNumber(10).pow(new BigNumber(18))).div(virtual_price)
-//         let _3crv_to_withdraw = new BigNumber(9500).muln(1000000).mul(new BigNumber('1000000000000')).mul(new BigNumber(10).pow(new BigNumber(18))).div(virtual_price)
-//         console.log('_3crv_to_withdraw: ' + _3crv_to_withdraw)
-//         let coin_amount = curve1.remove_liquidity_one_coin(_3crv_to_withdraw, 2)
-//         console.log('coin_amount: ' + coin_amount)
-//     })
+    // it('use get_virtual_price() + remove_liquidity_one_coin()', () => {
+    //     let virtual_price = curve1.get_virtual_price()
+    //     console.log("virtual price: " + virtual_price)
+    //     // let _3crv_to_withdraw = new BigNumber(9500).muln(1000000).mul(new BigNumber(10).pow(new BigNumber(18))).div(virtual_price)
+    //     let _3crv_to_withdraw = new BigNumber(9500).muln(1000000).mul(new BigNumber('1000000000000')).mul(new BigNumber(10).pow(new BigNumber(18))).div(virtual_price)
+    //     console.log('_3crv_to_withdraw: ' + _3crv_to_withdraw)
+    //     let coin_amount = curve1.remove_liquidity_one_coin(_3crv_to_withdraw, 2)
+    //     console.log('coin_amount: ' + coin_amount)
+    // })
 
-//     it('use remove_liquidity_imbalance()', () => {
-//         let _3crv_to_withdraw = curve1.remove_liquidity_imbalance([new BigNumber('0'), new BigNumber('0'), new BigNumber(9500).muln(1000000)])
-//         console.log('_3crv_to_withdraw: ' + _3crv_to_withdraw)
-//     })
+    // it('use remove_liquidity_imbalance()', () => {
+    //     let _3crv_to_withdraw = curve1.remove_liquidity_imbalance([new BigNumber('0'), new BigNumber('0'), new BigNumber(9500).muln(1000000)])
+    //     console.log('_3crv_to_withdraw: ' + _3crv_to_withdraw)
+    // })
 
-// })
+    // it('get_virtual_price() differ a lot', () => {
+    //     let virtual_price0 = curve1.get_virtual_price()
+    //     console.log("virtual price: " + virtual_price0)
+    //     console.log('assume a huge exchange happens, then USDT have more share in pool');
+    //     console.log(curve1.exchange(2, 0, BNUtils.mul10pow(new BigNumber('100000000'), 6)).toString())
+    //     let virtual_price1 = curve1.get_virtual_price()
+    //     console.log("virtual price: " + virtual_price1)
+    // })
+
+    it('find withdraw buffer threshold(use virtual price) when vault has insufficient buffer', () => {
+        const A1 = new BigNumber(200)
+        const admin_balances1 = [new BigNumber('19417477913988179088561'), new BigNumber('21344641050'), new BigNumber('27649688613')]
+
+        // const DaiAmountToWithdraw = BNUtils.mul10pow(new BigNumber('100'), 18)
+        // const balances_0 = [BNUtils.mul10pow(new BigNumber('10000'), 18), BNUtils.mul10pow(new BigNumber('10000'), 6), BNUtils.mul10pow(new BigNumber('10000'), 6)]
+        // let curve_0 = new CurvePool(A1, balances_0, admin_balances1, tokens1)
+        // let _3crvAmountToWithdraw = DaiAmountToWithdraw.mul(BNUtils.get10pow(18)).div(curve_0.get_virtual_price())
+        // console.log(_3crvAmountToWithdraw.toString())
+        // let actualDaiAmount = curve_0.remove_liquidity_one_coin(_3crvAmountToWithdraw, 0)
+        // console.log(actualDaiAmount.toString())
+        // console.log(DaiAmountToWithdraw.muln(100).div(actualDaiAmount).subn(100).toString())
+
+        // dai: down, usdc: still, usdt: up 
+        for (let i = 0; i < 45; i++) {
+            let dbalance = new BigNumber('2000000').muln(i)
+            // console.log(dbalance.toString())
+            let arr = []
+            for (let j = 0; j < 8; j++) {
+                let DaiAmountToWithdraw = BNUtils.mul10pow(BNUtils.get10pow(j), 18)
+                // console.log(DaiAmountToWithdraw.toString())
+                let balances_0 = [BNUtils.mul10pow(new BigNumber('100000000').sub(dbalance), 18), BNUtils.mul10pow(new BigNumber('100000000'), 6), BNUtils.mul10pow(new BigNumber('100000000').add(dbalance), 6)]
+                let curve_0 = new CurvePool(A1, balances_0, admin_balances1, new BigNumber('228526126556750785648667'))
+                let _3crvAmountToWithdraw = DaiAmountToWithdraw.mul(BNUtils.get10pow(18)).div(curve_0.get_virtual_price())
+                // console.log(_3crvAmountToWithdraw.toString())
+                let actualDaiAmount = curve_0.remove_liquidity_one_coin(_3crvAmountToWithdraw, 0)
+                // console.log(actualDaiAmount.toString())
+                let balances_1 = [BNUtils.mul10pow(new BigNumber('100000000').sub(dbalance), 18), BNUtils.mul10pow(new BigNumber('100000000'), 6), BNUtils.mul10pow(new BigNumber('100000000').add(dbalance), 6)]
+                let curve_1 = new CurvePool(A1, balances_1, admin_balances1, new BigNumber('228526126556750785648667'))
+                let _3crvToWithdrawFullAmount = curve_1.remove_liquidity_imbalance([DaiAmountToWithdraw, new BigNumber('0'), new BigNumber('0')])
+                // console.log(_3crvToWithdrawFullAmount.toString())
+                // arr[j] = DaiAmountToWithdraw.muln(10000).div(actualDaiAmount).subn(10000)
+                arr[j] = _3crvToWithdrawFullAmount.muln(10000).div(_3crvAmountToWithdraw).subn(10000)
+            }
+            // console.log(arr.toString())
+        }
+
+        // dai: down, usdc: up, usdt: up 
+        for (let i = 0; i < 45; i++) {
+            let dbalance = new BigNumber('1000000').muln(i)
+            // console.log(dbalance.toString())
+            let arr = []
+            for (let j = 0; j < 8; j++) {
+                let DaiAmountToWithdraw = BNUtils.mul10pow(BNUtils.get10pow(j), 18)
+                // console.log(DaiAmountToWithdraw.toString())
+                let balances_0 = [BNUtils.mul10pow(new BigNumber('100000000').sub(dbalance.muln(2)), 18), BNUtils.mul10pow(new BigNumber('100000000').add(dbalance), 6), BNUtils.mul10pow(new BigNumber('100000000').add(dbalance), 6)]
+                let curve_0 = new CurvePool(A1, balances_0, admin_balances1, new BigNumber('228526126556750785648667'))
+                let _3crvAmountToWithdraw = DaiAmountToWithdraw.mul(BNUtils.get10pow(18)).div(curve_0.get_virtual_price())
+                // console.log(_3crvAmountToWithdraw.toString())
+                let actualDaiAmount = curve_0.remove_liquidity_one_coin(_3crvAmountToWithdraw, 0)
+                // console.log(actualDaiAmount.toString())
+                let balances_1 = [BNUtils.mul10pow(new BigNumber('100000000').sub(dbalance.muln(2)), 18), BNUtils.mul10pow(new BigNumber('100000000').add(dbalance), 6), BNUtils.mul10pow(new BigNumber('100000000').add(dbalance), 6)]
+                let curve_1 = new CurvePool(A1, balances_1, admin_balances1, new BigNumber('228526126556750785648667'))
+                let _3crvToWithdrawFullAmount = curve_1.remove_liquidity_imbalance([DaiAmountToWithdraw, new BigNumber('0'), new BigNumber('0')])
+                // console.log(_3crvToWithdrawFullAmount.toString())
+                // arr[j] = DaiAmountToWithdraw.muln(10000).div(actualDaiAmount).subn(10000)
+                arr[j] = _3crvToWithdrawFullAmount.muln(10000).div(_3crvAmountToWithdraw).subn(10000)
+            }
+            // console.log(arr.toString())
+        }
+    })
+})

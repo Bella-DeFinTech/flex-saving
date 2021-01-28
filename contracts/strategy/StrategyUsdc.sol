@@ -156,7 +156,7 @@ contract StrategyUsdc is CrvLocker {
         uint burn = bellaBalance.mul(burnPercent).div(100);
         uint distribution = bellaBalance.mul(distributionPercent).div(100);
         
-        IERC20(bella).safeTransfer(IController(controller).rewards(), distribution);
+        IERC20(bella).safeTransfer(IController(controller).belRewards(), distribution);
         IERC20(bella).safeTransfer(burnAddress, burn); 
     }
     
@@ -235,7 +235,9 @@ contract StrategyUsdc is CrvLocker {
     }
     
     function balanceInPool() public view returns (uint256) {
-        return ICrvDeposit(threePoolGauge).balanceOf(address(this)).mul(ICrvPool(threePool).get_virtual_price()).div(1e18);
+        return ICrvDeposit(threePoolGauge).balanceOf(address(this))
+            .mul(ICrvPool(threePool).get_virtual_price()).div(1e18)
+            .div(TO_THREE_POOL_CRV_DECIMALS);
     }
     
     function setGovernance(address _governance) external {
