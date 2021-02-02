@@ -5,6 +5,7 @@ const curvePoolConstant = require('../const/CurvePool.js');
 /**
  * Curve 3Pool Emulator
  * Indices: 0-DAI 1-USDC 2-USDT
+ * @param {String} curvePoolSymbol - curve pool name like '_3pool'
  * @param {BigNumber} A - amplification coefficient
  * @param {BigNumber[]} balances - available token amount in pool
  * @param {BigNumber[]} admin_balances - cumulated admin fee array
@@ -12,20 +13,23 @@ const curvePoolConstant = require('../const/CurvePool.js');
  * 
  * @see https://github.com/curvefi/curve-contract/blob/master/contracts/pool-templates/base/SwapTemplateBase.vy
  */
-function CurvePool(A, balances, admin_balances, total_supply) {
+function CurvePool(curvePoolSymbol, A, balances, admin_balances, total_supply) {
+    this.curvePoolSymbol = curvePoolSymbol
     this.A = A // actually A * n ** (n - 1) because it's an invariant
     this.balances = balances
     this.admin_balances = admin_balances
     this.total_supply = total_supply
-    this.CURRENCY_NUMBER = curvePoolConstant.param.CURRENCY_NUMBER()
-    this.CURRENCY_RATES = curvePoolConstant.param.CURRENCY_RATES()
-    this.EXCHANGE_FEE = curvePoolConstant.param.EXCHANGE_FEE()
-    this.ADMIN_FEE = curvePoolConstant.param.ADMIN_FEE()
-    this.PRECISION = curvePoolConstant.param.PRECISION()
-    this.FEE_DENOMINATOR = curvePoolConstant.param.FEE_DENOMINATOR()
-    this.PRECISION_MUL = curvePoolConstant.param.PRECISION_MUL()
+    // for extension by prototype
+    if (curvePoolSymbol) {
+        this.CURRENCY_NUMBER = curvePoolConstant[curvePoolSymbol].param.CURRENCY_NUMBER()
+        this.CURRENCY_RATES = curvePoolConstant[curvePoolSymbol].param.CURRENCY_RATES()
+        this.EXCHANGE_FEE = curvePoolConstant[curvePoolSymbol].param.EXCHANGE_FEE()
+        this.ADMIN_FEE = curvePoolConstant[curvePoolSymbol].param.ADMIN_FEE()
+        this.PRECISION = curvePoolConstant[curvePoolSymbol].param.PRECISION()
+        this.FEE_DENOMINATOR = curvePoolConstant[curvePoolSymbol].param.FEE_DENOMINATOR()
+        this.PRECISION_MUL = curvePoolConstant[curvePoolSymbol].param.PRECISION_MUL()
+    }
 }
-
 //------------------------------------------internal----------------------------------------------
 CurvePool.prototype.xp = function () {
     return this.balances.map((value, index) => value.mul(this.CURRENCY_RATES[index]).div(this.PRECISION))
@@ -199,7 +203,7 @@ CurvePool.prototype.exchange = function (in_index, out_index, in_token_amount) {
 
 CurvePool.prototype.add_liquidity = function (in_token_amounts) {
     let _fee = this.EXCHANGE_FEE.mul(this.CURRENCY_NUMBER).div(this.CURRENCY_NUMBER.subn(1).muln(4))
-    let fees = new Array(this.CURRENCY_NUMBER).fill(new BigNumber(0))
+    let fees = new Array(this.CURRENCY_NUMBER.toNumber()).fill(new BigNumber(0))
     let old_balances = this.balances
     let new_balances = this.balances.slice(0)
     let D0 = this.total_supply.gtn(0) ? this.D(this.xp()) : new BigNumber(0)
@@ -240,7 +244,7 @@ CurvePool.prototype.remove_liquidity_one_coin = function (pool_token_amount, i) 
 
 CurvePool.prototype.remove_liquidity_imbalance = function (token_amounts) {
     let _fee = this.EXCHANGE_FEE.mul(this.CURRENCY_NUMBER).div(this.CURRENCY_NUMBER.subn(1).muln(4))
-    let fees = new Array(this.CURRENCY_NUMBER).fill(new BigNumber(0))
+    let fees = new Array(this.CURRENCY_NUMBER.toNumber()).fill(new BigNumber(0))
     let old_balances = this.balances
     let new_balances = this.balances.slice(0)
     let D0 = this.D(this.xp())
