@@ -138,7 +138,7 @@ contract StrategyHbtc is CrvLocker {
         uint256 bWantAfter = IERC20(wBTC).balanceOf(address(this));
 
         uint256 fee = bWantAfter.sub(bWantBefore).mul(manageFee).div(100);
-        IERC20(want).safeTransfer(IController(controller).rewards(), fee);
+        IERC20(wBTC).safeTransfer(IController(controller).rewards(), fee);
 
         if (toBella != 0) {
             uint256 crvBalance = crv.balanceOf(address(this));
