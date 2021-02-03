@@ -431,7 +431,7 @@ describe('Test BellaStaking', () => {
     })
 
     describe('Test user deposit and reward by step', () => {
-        const belRewardAmount = '43680' // 100 hour * 60 BEL / hour(USDT) + 100 hour * 200 BEL / hour(WBTC)
+        const belRewardAmount = '43680' // 7day * 24 hour *( 60 BEL / hour(USDT) + 200 BEL / hour(WBTC) )
         const userAusdtAmount = '50000'
         const userAwbtcAmount = '10'
         const userA = accounts[3]
@@ -693,7 +693,7 @@ describe('Test BellaStaking', () => {
             usdtTokenStaked = await call(stakingContractInstance, 'getBtokenStaked', [usdtPoolId, userA])
             console.log('[INFO]: USDT Staked amount is ' + BNUtils.div10pow(new BigNumber(usdtTokenStaked), tokenAddress.USDT.decimals) + ' USDT , holder address: ' + userA)
 
-            // userA stake 10 WBTC to pool 2, with type 0, 1, 2
+            // userA stake 10 WBTC to pool 2, with type 0, 1, 2, 3
             // approve staking contract can use WBTC token
             // WBTC need to clear allowrance and reapprove
             await AccountUtils.doApprove(
@@ -981,7 +981,7 @@ describe('Test BellaStaking', () => {
                     console.log('[INFO]: userA BEL balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
                 })
 
-                let earnedBellaInAllPool = await call(stakingContractInstance, 'earnedBellaAllPool', [userA])
+                let earnedBellaInAllPool = await call(stakingContractInstance, 'earnedBellaAllPool', [userA], { from: userA})
                 console.log('[INFO]: EearnedBelAllPool: ' + earnedBellaInAllPool)
 
                 AssertionUtils.assertBNEq(belReceivedAmount, BNUtils.mul10pow(new BigNumber(expectedBelRewardRefineAmount), 16))
@@ -1033,32 +1033,11 @@ describe('Test BellaStaking', () => {
                 
               
                // claim usdt pool with saving type 1
-                await send(stakingContractInstance, 'claimBella', [usdtPoolId, '1'], { from: userA }).then(() => {
-                    console.log('[INFO]: Success call claimBella method on saving type 1 by userA ' + userA)
+                await send(stakingContractInstance, 'claimAllBella', [usdtPoolId], { from: userA }).then(() => {
+                    console.log('[INFO]: Success call claimAllBella method on usdt pool by userA ' + userA)
                 })
 
-                await call(stakingContractInstance, 'userInfos', [usdtPoolId, userA, '1']).then(res => {
-                    console.log('[INFO]: after claimBella, userInfos on saving type 1 --------------------------------------------------------')
-                    console.log(res)
-                })
-
-                await call(stakingContractInstance, 'claimingBellas', [userA, '0']).then(res => {
-                    console.log('[INFO]: claimingBellas [userA, 0]--------------------------------------------------------')
-                    console.log(res)
-                })
-
-                let blockNumber 
-                
-                await web3.eth.getBlockNumber().then(res => {
-                    blockNumber = res
-                    console.log('[INFO]: blockNumber is: ' + res)
-                })
-                
-                await web3.eth.getBlock(blockNumber).then(res => {
-                    console.log('[INFO]: Current block timestamp: ' + res.timestamp) 
-                })
-
-                delayedBel = await call(stakingContractInstance, 'delayedBella', [])
+                delayedBel = await call(stakingContractInstance, 'delayedBella', [], { from: userA})
                 console.log('[INFO]: Delayed Bel amount: ' + delayedBel)
 
                 AssertionUtils.assertBNEq(delayedBel, BNUtils.mul10pow(new BigNumber(expectedDelayedBelAmount), 16))
@@ -1086,10 +1065,53 @@ describe('Test BellaStaking', () => {
                 console.log('[INFO]: forkedBlockTimestamp: ' + forkedBlockTimestamp)
                 console.log('[INFO]: targetTimestamp: ' + targetTimestamp)
 
-                // check usdt poolstaked
-                wbtcTokenStaked = await call(stakingContractInstance, 'getBtokenStaked', [wbtcPoolId, userA])
+                // check bel reward amount
+                await AccountUtils.balanceOfERC20Token('BEL', stakingContractAddress).then(res => {
+                    console.log('[INFO]: stakingContractAddress BEL balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
+                })
+
+                // check wbtc poolstaked
+                wbtcTokenStaked = await call(stakingContractInstance, 'getBtokenStaked', [wbtcPoolId, userA], { from: userA })
                 console.log('[INFO]: WBTC Staked amount is ' + BNUtils.div10pow(new BigNumber(wbtcTokenStaked), tokenAddress.WBTC.decimals) + ' WBTC , holder address: ' + userA)
             
+                // check userInfos
+                await call(stakingContractInstance, 'userInfos', [wbtcPoolId, userA, savingTypeInstance], { from: userA }).then(res=>{
+                    console.log('[INFO]: userInfo on [wbtcPoolId, userA, 0]')
+                    console.log(res)
+                })
+
+                await call(stakingContractInstance, 'userInfos', [wbtcPoolId, userA, '1'], { from: userA }).then(res=>{
+                    console.log('[INFO]: userInfo on [wbtcPoolId, userA, 1]')
+                    console.log(res)
+                })
+
+                await call(stakingContractInstance, 'userInfos', [wbtcPoolId, userA, '2'], { from: userA }).then(res=>{
+                    console.log('[INFO]: userInfo on [wbtcPoolId, userA, 2]')
+                    console.log(res)
+                })
+
+                await call(stakingContractInstance, 'userInfos', [wbtcPoolId, userA, '3'], { from: userA }).then(res=>{
+                    console.log('[INFO]: userInfo on [wbtcPoolId, userA, 3]')
+                    console.log(res)
+                })
+
+                await call(stakingContractInstance, 'earnedBella', [wbtcPoolId, userA, '0']).then((res) => {
+                    console.log('[INFO]: WBTC POOL saving type 0 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
+                })
+
+                await call(stakingContractInstance, 'earnedBella', [wbtcPoolId, userA, '1']).then((res) => {
+                    console.log('[INFO]: WBTC POOL saving type 1 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
+                })
+
+                await call(stakingContractInstance, 'earnedBella', [wbtcPoolId, userA, '2']).then((res) => {
+                    console.log('[INFO]: WBTC POOL saving type 2 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
+                })
+
+                await call(stakingContractInstance, 'earnedBella', [wbtcPoolId, userA, '3']).then((res) => {
+                    console.log('[INFO]: WBTC POOL saving type 3 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
+                })
+
+
                 await send(stakingContractInstance, 'claimBella', [wbtcPoolId, savingTypeInstance], { from: userA }).then(() => {
                     console.log('[INFO]: Success call claimBella method by userA ' + userA)
                 })
