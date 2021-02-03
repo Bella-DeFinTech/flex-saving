@@ -1025,20 +1025,37 @@ describe('Test BellaStaking', () => {
                 usdtTokenStaked = await call(stakingContractInstance, 'getBtokenStaked', [usdtPoolId, userA])
                 console.log('[INFO]: USDT Staked amount is ' + BNUtils.div10pow(new BigNumber(usdtTokenStaked), tokenAddress.USDT.decimals) + ' USDT , holder address: ' + userA)
 
-                await send(stakingContractInstance, 'claimAllBella', [usdtPoolId], { from: userA }).then(() => {
-                    console.log('[INFO]: Success call claimAllBella method by userA ' + userA)
-                })
 
+                await call(stakingContractInstance, 'userInfos', [usdtPoolId, userA, '1']).then(res => {
+                    console.log('[INFO]: before claimBella, userInfos on saving type 1 --------------------------------------------------------')
+                    console.log(res)
+                })
+                
+              
+               // claim usdt pool with saving type 1
                 await send(stakingContractInstance, 'claimBella', [usdtPoolId, '1'], { from: userA }).then(() => {
                     console.log('[INFO]: Success call claimBella method on saving type 1 by userA ' + userA)
                 })
 
-                await send(stakingContractInstance, 'claimBella', [usdtPoolId, '2'], { from: userA }).then(() => {
-                    console.log('[INFO]: Success call claimBella method on saving type 2 by userA ' + userA)
+                await call(stakingContractInstance, 'userInfos', [usdtPoolId, userA, '1']).then(res => {
+                    console.log('[INFO]: after claimBella, userInfos on saving type 1 --------------------------------------------------------')
+                    console.log(res)
                 })
 
-                await send(stakingContractInstance, 'claimBella', [usdtPoolId, '3'], { from: userA }).then(() => {
-                    console.log('[INFO]: Success call claimBella method on saving type 3 by userA ' + userA)
+                await call(stakingContractInstance, 'claimingBellas', [userA, '0']).then(res => {
+                    console.log('[INFO]: claimingBellas [userA, 0]--------------------------------------------------------')
+                    console.log(res)
+                })
+
+                let blockNumber 
+                
+                await web3.eth.getBlockNumber().then(res => {
+                    blockNumber = res
+                    console.log('[INFO]: blockNumber is: ' + res)
+                })
+                
+                await web3.eth.getBlock(blockNumber).then(res => {
+                    console.log('[INFO]: Current block timestamp: ' + res.timestamp) 
                 })
 
                 delayedBel = await call(stakingContractInstance, 'delayedBella', [])
