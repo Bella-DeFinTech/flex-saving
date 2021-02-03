@@ -430,7 +430,20 @@ contract BellaStaking is Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev Get user's total staked btoken in on pool
+     * @dev Get user's staked btoken of a givin type in one pool
+     * @param _pid id of the pool
+     * @param user user address
+     * @param _savingType saving type
+     */
+    function getBtokenStakedFromType(uint256 _pid, address user, uint256 _savingType) external view validPool(_pid) returns (uint256) {
+        require(_savingType < NUM_TYPES, "invalid savingType");
+        uint256 sum = 0;
+        sum = sum.add(userInfos[_pid][user][_savingType].amount);
+        return sum;        
+    }
+
+    /**
+     * @dev Get user's total staked btoken in one pool
      * @param _pid id of the pool
      * @param user user address
      */
