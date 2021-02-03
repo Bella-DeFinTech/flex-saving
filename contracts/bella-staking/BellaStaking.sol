@@ -377,7 +377,7 @@ contract BellaStaking is Ownable, ReentrancyGuard {
             user.earnedBella = 0;
             ClaimingBella[] storage claimingBella = claimingBellas[msg.sender];
             claimingBella.push(ClaimingBella({amount: amount, unlockTime: now.add(delay * 1 days)}));       
-        }     
+        }
     }
 
     /**
