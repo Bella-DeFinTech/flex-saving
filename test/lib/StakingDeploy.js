@@ -2,7 +2,7 @@ const tokenAddress = require('../const/Token.js');
 const fs = require('fs');
 const console = require('console');
 
-module.exports = async function (saddle, deployer, governance, customVaultAddressObj = {}, prodTimestamp = true) {
+module.exports = async function (saddle, deployer, governance, customVaultAddressObj = {}, customTimestamp = '') {
     const deploy = saddle.deploy
     const send = saddle.send
 
@@ -11,15 +11,15 @@ module.exports = async function (saddle, deployer, governance, customVaultAddres
     const deployerAddress  = deployer
     const governanceAddress = governance
 
-    const startCalculeTimestamp = prodTimestamp ? 1606132800 : web3.eth.getBlock(11690921).timestamp // 2020/11/23 20:00
+    const startCalculeTimestamp = customTimestamp === '' ? 1606132800 : customTimestamp // 2020/11/23 20:00
 
     console.log('[INFO]: start timestem: ' + startCalculeTimestamp)
 
-    const bUsdtToken = { symbol: 'USDT', bSymbol: 'bUSDT', weight: 1000, boost: [115, 130, 160], withUpdate: false }
-    const bUsdcToken = { symbol: 'USDC', bSymbol: 'bUSDC', weight: 1000, boost: [115, 130, 160], withUpdate: false }
-    const bWbtcToken = { symbol: 'WBTC', bSymbol: 'bWBTC', weight: 1000, boost: [115, 130, 160], withUpdate: false }
-    //const bArpaToken = { symbol: 'ARPA', bSymbol: 'bARPA', weight: 1000, boost: [115, 130, 160], withUpdate: false }
-    const bDaiToken = { symbol: 'DAI', bSymbol: 'bDAI', weight: 1000, boost: [115, 130, 160], withUpdate: false }
+    const bUsdtToken = { symbol: 'USDT', bSymbol: 'bUSDT', weight: 60, boost: [115, 130, 160], withUpdate: false }
+    // const bUsdcToken = { symbol: 'USDC', bSymbol: 'bUSDC', weight: 1000, boost: [115, 130, 160], withUpdate: false }
+    const bWbtcToken = { symbol: 'WBTC', bSymbol: 'bWBTC', weight: 200, boost: [115, 130, 160], withUpdate: false }
+    // const bArpaToken = { symbol: 'ARPA', bSymbol: 'bARPA', weight: 1000, boost: [115, 130, 160], withUpdate: false }
+    // const bDaiToken = { symbol: 'DAI', bSymbol: 'bDAI', weight: 1000, boost: [115, 130, 160], withUpdate: false }
 
     // -----------------------PRODUCTION PARAMTERS END--------------------------------
 
@@ -132,8 +132,8 @@ module.exports = async function (saddle, deployer, governance, customVaultAddres
             return addStakingToken(bellaStakingInstance, bUsdtToken, deployerAddress)
         }).then(() => {
 
-            return addStakingToken(bellaStakingInstance, bUsdcToken, deployerAddress)
-        }).then(() => {
+        //     return addStakingToken(bellaStakingInstance, bUsdcToken, deployerAddress)
+        // }).then(() => {
 
             return addStakingToken(bellaStakingInstance, bWbtcToken, deployerAddress)
         }).then(() => {
@@ -141,8 +141,8 @@ module.exports = async function (saddle, deployer, governance, customVaultAddres
         //    return addStakingToken(bellaStakingInstance, bArpaToken, deployerAddress)
         //}).then(() => {
 
-            return addStakingToken(bellaStakingInstance, bDaiToken, deployerAddress)
-        }).then(() => {
+        //     return addStakingToken(bellaStakingInstance, bDaiToken, deployerAddress)
+        // }).then(() => {
 
             return send(bellaStakingInstance, 'transferOwnership', [governanceAddress], { from: deployerAddress })
         }).then(() => {
