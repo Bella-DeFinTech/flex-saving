@@ -50,8 +50,8 @@ describe('Test BellaStaking', () => {
     let stakingContractAddress
 
     // config parameters
-    const belRewardAmount = '100000'
-    const belRewardUnlockCycle = 7 // days
+    const belRewardAmount = '200000'
+    const belRewardUnlockCycle = 30 // days
     const expectedUsdtTotalStakedAmount = '1000000'
     const expectedWbtcTotalStakedAmount = '500'
     const expectedDaiTotalStakedAmount = '10000'
@@ -431,7 +431,7 @@ describe('Test BellaStaking', () => {
     })
 
     describe('Test user deposit and reward by step', () => {
-        const belRewardAmount = '43680' // 7day * 24 hour *( 60 BEL / hour(USDT) + 200 BEL / hour(WBTC) )
+        const belRewardAmount = '187200' // 30day * 24 hour *( 60 BEL / hour(USDT) + 200 BEL / hour(WBTC) )
         const userAusdtAmount = '50000'
         const userAwbtcAmount = '10'
         const userA = accounts[3]
@@ -451,9 +451,9 @@ describe('Test BellaStaking', () => {
                 BNUtils.mul10pow(new BigNumber(belRewardAmount), tokenAddress.BEL.decimals).toString(), belRewardUnlockCycle],
                 { from: governanceAddress })
 
-            console.log('[INFO]: Lock ' + belRewardAmount + ' BEL to staking contract at' + stakingContractAddress)
+            console.log('[INFO]: Lock ' + belRewardAmount + ' BEL to staking contract at: ' + stakingContractAddress)
             await AccountUtils.balanceOfERC20Token('BEL', stakingContractAddress).then(res => {
-                AssertionUtils.assertBNEq(BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals), belRewardAmount)
+                console.log('[INFO]: staking contract BEL balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
             })
 
 
@@ -783,9 +783,9 @@ describe('Test BellaStaking', () => {
         })
 
         it('total lock WBTC amount is expected', async() => {
-            let initStakerWbtcAmount = await call(stakingContractInstance, 'getBtokenStaked', [wbtcPoolId, initStaker])
+            let initStakerWbtcAmount = await call(stakingContractInstance, 'getBtokenStaked', [wbtcPoolId, initStaker], { from: initStaker })
             console.log('[INFO]: initstaker WBTC stake amount: ' + BNUtils.div10pow(new BigNumber(initStakerWbtcAmount), tokenAddress.WBTC.decimals))
-            let userAStakeWbtcAmount = await call(stakingContractInstance, 'getBtokenStaked', [wbtcPoolId, userA])
+            let userAStakeWbtcAmount = await call(stakingContractInstance, 'getBtokenStaked', [wbtcPoolId, userA], { from: userA })
             console.log('[INFO]: userA WBTC stake amount: ' + BNUtils.div10pow(new BigNumber(userAStakeWbtcAmount), tokenAddress.WBTC.decimals))
 
             let receivedBn = BNUtils.sum([new BigNumber(initStakerWbtcAmount), new BigNumber(userAStakeWbtcAmount)]) 
@@ -874,7 +874,7 @@ describe('Test BellaStaking', () => {
             AssertionUtils.assertBNEq(earnedBellaAllInWBTCPool, BNUtils.mul10pow(new BigNumber(refineBelRewardNumber), 16))
         })
 
-        it('after 100 hours user can accrately get collectable reward BEL in USDT and WBTC pool', async() => {
+        it('after 100 hours user can accrately get collectable reward BEL in all pool (USDT and WBTC)', async() => {
             // set timestamp plus 100 hours
             const diff100HoursTimestamp = 360000 // 100 * 60 * 60
             const refineBelRewardNumber = 66351
@@ -1052,7 +1052,6 @@ describe('Test BellaStaking', () => {
         it('after 100 hours user can get accuratly BEL reward from WBTC pool, saving type instance', async() => {
             // set timestamp plus 100 hours
             const diff100HoursTimestamp = 360000 // 100 * 60 * 60
-            const savingTypeInstance = '0'
             const expectedBelRewardAmount = 6252
 
             let belReceivedAmount
@@ -1074,46 +1073,8 @@ describe('Test BellaStaking', () => {
                 wbtcTokenStaked = await call(stakingContractInstance, 'getBtokenStaked', [wbtcPoolId, userA], { from: userA })
                 console.log('[INFO]: WBTC Staked amount is ' + BNUtils.div10pow(new BigNumber(wbtcTokenStaked), tokenAddress.WBTC.decimals) + ' WBTC , holder address: ' + userA)
             
-                // check userInfos
-                await call(stakingContractInstance, 'userInfos', [wbtcPoolId, userA, savingTypeInstance], { from: userA }).then(res=>{
-                    console.log('[INFO]: userInfo on [wbtcPoolId, userA, 0]')
-                    console.log(res)
-                })
-
-                await call(stakingContractInstance, 'userInfos', [wbtcPoolId, userA, '1'], { from: userA }).then(res=>{
-                    console.log('[INFO]: userInfo on [wbtcPoolId, userA, 1]')
-                    console.log(res)
-                })
-
-                await call(stakingContractInstance, 'userInfos', [wbtcPoolId, userA, '2'], { from: userA }).then(res=>{
-                    console.log('[INFO]: userInfo on [wbtcPoolId, userA, 2]')
-                    console.log(res)
-                })
-
-                await call(stakingContractInstance, 'userInfos', [wbtcPoolId, userA, '3'], { from: userA }).then(res=>{
-                    console.log('[INFO]: userInfo on [wbtcPoolId, userA, 3]')
-                    console.log(res)
-                })
-
-                await call(stakingContractInstance, 'earnedBella', [wbtcPoolId, userA, '0']).then((res) => {
-                    console.log('[INFO]: WBTC POOL saving type 0 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
-                })
-
-                await call(stakingContractInstance, 'earnedBella', [wbtcPoolId, userA, '1']).then((res) => {
-                    console.log('[INFO]: WBTC POOL saving type 1 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
-                })
-
-                await call(stakingContractInstance, 'earnedBella', [wbtcPoolId, userA, '2']).then((res) => {
-                    console.log('[INFO]: WBTC POOL saving type 2 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
-                })
-
-                await call(stakingContractInstance, 'earnedBella', [wbtcPoolId, userA, '3']).then((res) => {
-                    console.log('[INFO]: WBTC POOL saving type 3 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
-                })
-
-
-                await send(stakingContractInstance, 'claimBella', [wbtcPoolId, savingTypeInstance], { from: userA }).then(() => {
-                    console.log('[INFO]: Success call claimBella method by userA ' + userA)
+                await send(stakingContractInstance, 'claimAllBella', [wbtcPoolId], { from: userA }).then(() => {
+                    console.log('[INFO]: Success call claimAllBella method by userA ' + userA)
                 })
 
                 await AccountUtils.balanceOfERC20Token('BEL', userA).then(res => {
@@ -1122,6 +1083,67 @@ describe('Test BellaStaking', () => {
                 })
 
                 AssertionUtils.assertBNEq(belReceivedAmount, BNUtils.mul10pow(new BigNumber(expectedBelRewardAmount), 16))
+            })
+        })
+
+        it('after 100 hours, user can accurately collect delayed BEL in USDT pool', async() => {
+            // set timestamp plus 100 hours
+            const diff100HoursTimestamp = 360000 // 100 * 60 * 60
+            const diff192HoursTimestamp = 691200 // 192 * 60 * 60
+
+            const expectedCollectableBelAmount = 13847
+
+            let delayedBel
+            let collectableBel
+            let receivedBel100Hour
+            let receivedBel292Hour
+
+            await timeMachine.sendAndRollback(async () => {
+                // forward 100 hours from start timestamp
+                let firstTargetTimestamp = forkedBlockTimestamp + diff100HoursTimestamp
+                await timeMachine.advanceBlockAndSetTime(firstTargetTimestamp)
+
+                console.log('[INFO]: forkedBlockTimestamp: ' + forkedBlockTimestamp)
+                console.log('[INFO]: first target timestamp: ' + firstTargetTimestamp)
+                
+               // claim USDT pool with saving type 1
+                await send(stakingContractInstance, 'claimAllBella', [usdtPoolId], { from: userA }).then(() => {
+                    console.log('[INFO]: Success call claimAllBella method on USDT pool by userA ' + userA)
+                })
+
+                delayedBel = await call(stakingContractInstance, 'delayedBella', [], { from: userA})
+                console.log('[INFO]: Delayed Bel amount: ' + BNUtils.div10pow(new BigNumber(delayedBel), tokenAddress.BEL.decimals))
+
+                let secondTargetTimestam = firstTargetTimestamp + diff192HoursTimestamp
+                await timeMachine.advanceBlockAndSetTime(secondTargetTimestam)
+
+                console.log('[INFO]: second target timestamp: ' + secondTargetTimestam)
+
+                collectableBel = await call(stakingContractInstance, 'collectiableBella', [], { from: userA})
+                console.log('[INFO]: collectiableBella Bel amount: ' + collectableBel)
+
+                // check userA wallet BEL balance
+                await AccountUtils.balanceOfERC20Token('BEL', userA).then(res => {
+                    receivedBel100Hour = new BigNumber(res)
+                    console.log('[INFO]: userA BEL balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
+                })
+
+                // userA collect delayed BEL
+                await send(stakingContractInstance, 'collectBella', [], { from: userA }).then(() => {
+                    console.log('[INFO]: collect delayed BEL reward')
+                })
+
+                // check userA wallet BEL balance
+                await AccountUtils.balanceOfERC20Token('BEL', userA).then(res => {
+                    receivedBel292Hour = new BigNumber(res)
+                    console.log('[INFO]: userA BEL balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
+                })
+
+                let belRewardWaitCollected = receivedBel292Hour.sub(receivedBel100Hour)
+
+                AssertionUtils.assertBNEq(collectableBel, BNUtils.mul10pow(new BigNumber(expectedCollectableBelAmount), 16))
+
+                AssertionUtils.assertBNEq(belRewardWaitCollected, BNUtils.mul10pow(new BigNumber(expectedCollectableBelAmount), 16))
             })
         })
 
