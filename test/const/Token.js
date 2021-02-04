@@ -55,6 +55,17 @@ const address = {
         tokenHolder: '0xbe0eb53f46cd790cd13851d5eff43d12404d33e8',
         decimals: 18
     },
+    hCRV:{
+        token: '0xb19059ebb43466C323583928285a49f558E572Fd',
+        tokenHolder: '',
+        decimals: 18
+    },
+    yBUSD_CRV:{
+        token: '0x3B3Ac5386837Dc563660FB6a0937DFAa5924333B',
+        tokenHolder: '',
+        decimals: 18
+    }
+
 }
 
 module.exports = address

@@ -5,7 +5,7 @@ const fs = require('fs');
 // don't capture console
 const console = require('console');
 
-module.exports = async function (saddle, deployer, accounts, deployTokenIndices = []) {
+module.exports = async function (saddle, deployer, accounts, deployTokenIndices = [], arpaVaultStartTimestamp = Math.round(new Date() / 1000)) {
 
   const deploy = saddle.deploy
   const send = saddle.send
@@ -17,8 +17,6 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
   const deployerAddress = accounts[0]
   const strategyTokenRewardsAddress = accounts[1]
   const belTokenRewardsAddress = accounts[1]
-
-  const arpaVaultStartTimestamp = 1606132800 // 2020/11/23 20:00
 
   const deployAddress = {
     controller: '',
