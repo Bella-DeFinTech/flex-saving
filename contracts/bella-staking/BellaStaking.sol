@@ -358,8 +358,9 @@ contract BellaStaking is Ownable, ReentrancyGuard {
         require(savingType < NUM_TYPES, "invalid savingType");
         UserInfo storage user = userInfos[_pid][msg.sender][savingType];
 
-        PoolInfo memory pool = poolInfo[_pid];
         updatePool(_pid);
+        PoolInfo memory pool = poolInfo[_pid];
+
         uint256 pending = user.effectiveAmount.mul(pool.accBellaPerShare).div(1e12).sub(user.rewardDebt);
         if(pending > 0) {
             user.earnedBella = user.earnedBella.add(pending);
