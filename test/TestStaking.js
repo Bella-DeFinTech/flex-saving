@@ -66,12 +66,7 @@ describe('Test BellaStaking', () => {
         console.log('[INFO]: forked block timestamp: ' + forkedBlockTimestamp)
 
         stakingContractAddress = await deploy(saddle, deployerAddress, governanceAddress, testVaultAddressObj, forkedBlockTimestamp)
-        console.log('[INFO]: Staking contract deploy success')
-
         stakingContractInstance = await saddle.getContractAt('BellaStaking', stakingContractAddress)
-
-        let poolLenght = await call(stakingContractInstance, 'poolLength', [], { from: governanceAddress })
-        console.log('[INFO]: PoolLength is ' + poolLenght)
 
         // init BEL token, in order to transfer reward to staking contract 
         belTokenAddress = tokenAddress.BEL.token
@@ -79,52 +74,21 @@ describe('Test BellaStaking', () => {
         // send BEL token from belTokenHolder to governacne address
         await AccountUtils.giveERC20Token('BEL', governanceAddress, BNUtils.mul10pow(new BigNumber(belRewardAmount), tokenAddress.BEL.decimals))
         // approve staking contract usage of BEL token
-        await AccountUtils.doApprove('BEL', governanceAddress, stakingContractAddress, BNUtils.mul10pow(new BigNumber(belRewardAmount), tokenAddress.BEL.decimals).toString()).then(() => {
-            console.log('[INFO]: Send BEL token to governanceAddress success')
-        })
-
+        await AccountUtils.doApprove('BEL', governanceAddress, stakingContractAddress, BNUtils.mul10pow(new BigNumber(belRewardAmount), tokenAddress.BEL.decimals).toString())
         // transfer USDT token from token holder to initStaker
         usdtTokenAddress = tokenAddress.USDT.token
         usdtToken = await saddle.getContractAt('IERC20', usdtTokenAddress)
-        await AccountUtils.balanceOfERC20Token('USDT', tokenAddress.USDT.tokenHolder).then((res) => {
-            console.log('[INFO]: USDT token holder balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.USDT.decimals) + ' USDT')
-        })
-        console.log('[INFO]: USDT', initStaker, BNUtils.mul10pow(new BigNumber(expectedUsdtTotalStakedAmount), tokenAddress.USDT.decimals))
         await AccountUtils.giveERC20Token('USDT', initStaker, BNUtils.mul10pow(new BigNumber(expectedUsdtTotalStakedAmount), tokenAddress.USDT.decimals)).then(() => {
             console.log('[INFO]: Success transfer ' + expectedUsdtTotalStakedAmount + ' USDT to initStaker: ' + initStaker)
-        })
-        await AccountUtils.balanceOfERC20Token('USDT', initStaker).then((res) => {
-            console.log('[INFO]: initStaker USDT balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.USDT.decimals) + ' USDT')
         })
 
         // transfer WBTC token from token holder to initStaker
         wbtcTokenAddress = tokenAddress.WBTC.token
         wbtcToken = await saddle.getContractAt('IERC20', wbtcTokenAddress)
-        await AccountUtils.balanceOfERC20Token('WBTC', tokenAddress.WBTC.tokenHolder).then((res) => {
-            console.log('[INFO]: WBTC token holder balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.WBTC.decimals) + ' WBTC')
-        })
-        console.log('WBTC', initStaker, BNUtils.mul10pow(new BigNumber(expectedWbtcTotalStakedAmount), tokenAddress.WBTC.decimals), expectedWbtcTotalStakedAmount, tokenAddress.WBTC.decimals)
         await AccountUtils.giveERC20Token('WBTC', initStaker, BNUtils.mul10pow(new BigNumber(expectedWbtcTotalStakedAmount), tokenAddress.WBTC.decimals)).then(() => {
             console.log('[INFO]: Success transfer ' + expectedWbtcTotalStakedAmount + ' WBTC to initStaker: ' + initStaker)
         })
-        await AccountUtils.balanceOfERC20Token('WBTC', initStaker).then((res) => {
-            console.log('[INFO]: initStaker WBTC balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.WBTC.decimals) + ' WBTC')
-        })
-
-        // transfer DAI token from token holder to initStaker
-        // daiTokenAddress = tokenAddress.DAI.token
-        // daiToken = await saddle.getContractAt('IERC20', daiTokenAddress)
-        // await AccountUtils.balanceOfERC20Token('DAI', tokenAddress.DAI.tokenHolder).then(res => {
-        //     console.log('[INFO]: DAI token holder balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.DAI.decimals) + ' DAI')
-        // })
-        // console.log('DAI', initStaker, BNUtils.mul10pow(new BigNumber(expectedDaiTotalStakedAmount), tokenAddress.DAI.decimals), expectedDaiTotalStakedAmount, tokenAddress.DAI.decimals)
-        // await AccountUtils.giveERC20Token('DAI', initStaker, BNUtils.mul10pow(new BigNumber(expectedDaiTotalStakedAmount), tokenAddress.DAI.decimals)).then(() => {
-        //     console.log('[INFO]: Success transfer ' + expectedDaiTotalStakedAmount + ' DAI to initStaker: ' + initStaker)
-        // })
-        // await AccountUtils.balanceOfERC20Token('DAI', initStaker).then((res) => {
-        //     console.log('[INFO]: initStaker DAI balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.DAI.decimals) + ' DAI')
-        // })
-
+       
         done()
     })
 
@@ -162,7 +126,6 @@ describe('Test BellaStaking', () => {
             'lock', [
             BNUtils.mul10pow(new BigNumber(belRewardAmount), tokenAddress.BEL.decimals).toString(), belRewardUnlockCycle],
             { from: governanceAddress })
-        console.log('[INFO]: Lock ' + belRewardAmount + ' BEL to staking contract at' + stakingContractAddress)
 
         await AccountUtils.balanceOfERC20Token('USDT', initStaker).then(res => {
             console.log('[INFO]: initStaker USDT balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.USDT.decimals) + ' USDT')
@@ -175,18 +138,12 @@ describe('Test BellaStaking', () => {
             initStaker,
             stakingContractAddress,
             BNUtils.mul10pow(new BigNumber('0'), tokenAddress.USDT.decimals).toString())
-            .then(() => {
-                console.log('[INFO]: clear USDT approve amount to 0 on address: ' + initStaker)
-            })
 
         await AccountUtils.doApprove(
             'USDT',
             initStaker,
             stakingContractAddress,
             BNUtils.mul10pow(new BigNumber(expectedUsdtTotalStakedAmount), tokenAddress.USDT.decimals).toString())
-            .then(() => {
-                console.log('[INFO]: approve ' + expectedUsdtTotalStakedAmount + ' USDT token to staking contract, contract address: ' + stakingContractAddress)
-            })
 
         await call(usdtToken, 'allowance', [initStaker, stakingContractAddress]).then(res => {
             console.log('[INFO]: Allowance of staking contract usage of USDT token is : ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.USDT.decimals) + ' USDT')
@@ -235,106 +192,12 @@ describe('Test BellaStaking', () => {
                 console.log('[INFO]: stake 100000 USDT to pool ' + usdtPoolId + ', savingType 3')
             })
 
-        await AccountUtils.balanceOfERC20Token('USDT', initStaker).then(res => {
-            console.log('[INFO]: initStaker USDT balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.USDT.decimals) + ' USDT')
-        })
 
         let usdtTokenStaked = await call(stakingContractInstance, 'getBtokenStaked', [usdtPoolId, initStaker])
-        console.log('[INFO]: USDT Staked amount is ' + BNUtils.div10pow(new BigNumber(usdtTokenStaked), tokenAddress.USDT.decimals) + ' USDT , holder address: ' + initStaker)
+
         AssertionUtils.assertBNEq(usdtTokenStaked, BNUtils.mul10pow(new BigNumber(expectedUsdtTotalStakedAmount), tokenAddress.USDT.decimals).toString())
     })
 
-    {
-        // it('DAI can be accurately staked', async () => {
-
-    //     // lock 10000 BEL to staking contract as reward
-    //     await send(stakingContractInstance,
-    //         'lock', [
-    //         BNUtils.mul10pow(new BigNumber(belRewardAmount), tokenAddress.BEL.decimals).toString(), belRewardUnlockCycle],
-    //         { from: governanceAddress })
-    //     console.log('[INFO]: Lock ' + belRewardAmount + ' BEL to staking contract at' + stakingContractAddress)
-
-    //     await AccountUtils.balanceOfERC20Token('DAI', initStaker).then(res => {
-    //         console.log('[INFO]: initStaker DAI balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.DAI.decimals) + ' DAI')
-    //     })
-
-    //     // approve staking contract can use DAI token
-    //     // DAI need to clear allowrance and reapprove
-    //     await AccountUtils.doApprove(
-    //         'DAI',
-    //         initStaker,
-    //         stakingContractAddress,
-    //         BNUtils.mul10pow(new BigNumber('0'), tokenAddress.DAI.decimals).toString())
-    //         .then(() => {
-    //             console.log('[INFO]: clear DAI approve amount to 0 on address: ' + initStaker)
-    //         })
-
-    //     await AccountUtils.doApprove(
-    //         'DAI',
-    //         initStaker,
-    //         stakingContractAddress,
-    //         BNUtils.mul10pow(new BigNumber(expectedDaiTotalStakedAmount), tokenAddress.DAI.decimals).toString())
-    //         .then(() => {
-    //             console.log('[INFO]: approve ' + expectedDaiTotalStakedAmount + ' DAI token to staking contract, contract address: ' + stakingContractAddress)
-    //         })
-
-    //     await call(daiToken, 'allowance', [initStaker, stakingContractAddress]).then(res => {
-    //         console.log('[INFO]: Allowance of staking contract usage of DAI token is : ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.DAI.decimals) + ' DAI')
-    //     })
-
-    //     // init stake DAI as bDai
-    //     // function deposit(uint256 _pid, uint256 _amount, uint256 savingType) 
-    //     await send(stakingContractInstance,
-    //         'deposit',
-    //         [daiPoolId, BNUtils.mul10pow(new BigNumber('3000'), tokenAddress.DAI.decimals), '0'],
-    //         { from: initStaker })
-    //         .then(() => {
-    //             console.log('[INFO]: stake 3000 DAI to pool ' + daiPoolId + ', savingType 0')
-    //         })
-    //     await AccountUtils.balanceOfERC20Token('DAI', initStaker).then(res => {
-    //         console.log('[INFO]: initStaker DAI balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.DAI.decimals) + ' DAI')
-    //     })
-
-    //     await send(stakingContractInstance,
-    //         'deposit',
-    //         [daiPoolId, BNUtils.mul10pow(new BigNumber('3500'), tokenAddress.DAI.decimals), '1'],
-    //         { from: initStaker })
-    //         .then(() => {
-    //             console.log('[INFO]: stake 3500 DAI to pool ' + daiPoolId + ', savingType 1')
-    //         })
-    //     await AccountUtils.balanceOfERC20Token('DAI', initStaker).then(res => {
-    //         console.log('[INFO]: initStaker DAI balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.DAI.decimals) + ' DAI')
-    //     })
-
-    //     await send(stakingContractInstance,
-    //         'deposit',
-    //         [daiPoolId, BNUtils.mul10pow(new BigNumber('2500'), tokenAddress.DAI.decimals), '2'],
-    //         { from: initStaker })
-    //         .then(() => {
-    //             console.log('[INFO]: stake 2500 DAI to pool ' + daiPoolId + ', savingType 2')
-    //         })
-    //     await AccountUtils.balanceOfERC20Token('DAI', initStaker).then(res => {
-    //         console.log('[INFO]: initStaker DAI balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.DAI.decimals) + ' DAI')
-    //     })
-
-    //     await send(stakingContractInstance,
-    //         'deposit',
-    //         [daiPoolId, BNUtils.mul10pow(new BigNumber('1000'), tokenAddress.DAI.decimals), '3'],
-    //         { from: initStaker })
-    //         .then(() => {
-    //             console.log('[INFO]: stake 1000 DAI to pool ' + daiPoolId + ', savingType 3')
-    //         })
-
-    //     await AccountUtils.balanceOfERC20Token('DAI', initStaker).then(res => {
-    //         console.log('[INFO]: initStaker DAI balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.DAI.decimals) + ' DAI')
-    //     })
-
-    //     let daiTokenStaked = await call(stakingContractInstance, 'getBtokenStaked', [daiPoolId, initStaker])
-    //     console.log('[INFO]: DAI Staked amount is ' + BNUtils.div10pow(new BigNumber(daiTokenStaked), tokenAddress.DAI.decimals) + ' DAI , holder address: ' + initStaker)
-    //     AssertionUtils.assertBNEq(daiTokenStaked, BNUtils.mul10pow(new BigNumber(expectedDaiTotalStakedAmount), tokenAddress.DAI.decimals).toString())
-    // })
-    }
-    
     it('WBTC can be accurately staked', async () => {
         // lock 10000 BEL to staking contract as reward
         await send(stakingContractInstance,
@@ -343,10 +206,6 @@ describe('Test BellaStaking', () => {
             { from: governanceAddress })
         console.log('[INFO]: Lock ' + belRewardAmount + ' BEL to staking contract at' + stakingContractAddress)
 
-        await AccountUtils.balanceOfERC20Token('WBTC', initStaker).then(res => {
-            console.log('[INFO]: initStaker WBTC balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.WBTC.decimals) + ' WBTC')
-        })
-
         // approve staking contract can use WBTC token
         // WBTC need to clear allowrance and reapprove
         await AccountUtils.doApprove(
@@ -354,18 +213,12 @@ describe('Test BellaStaking', () => {
             initStaker,
             stakingContractAddress,
             BNUtils.mul10pow(new BigNumber('0'), tokenAddress.WBTC.decimals).toString())
-            .then(() => {
-                console.log('[INFO]: clear WBTC approve amount to 0 on address: ' + initStaker)
-            })
 
         await AccountUtils.doApprove(
             'WBTC',
             initStaker,
             stakingContractAddress,
             BNUtils.mul10pow(new BigNumber(expectedDaiTotalStakedAmount), tokenAddress.WBTC.decimals).toString())
-            .then(() => {
-                console.log('[INFO]: approve ' + expectedDaiTotalStakedAmount + ' WBTC token to staking contract, contract address: ' + stakingContractAddress)
-            })
 
         await call(wbtcToken, 'allowance', [initStaker, stakingContractAddress]).then(res => {
             console.log('[INFO]: Allowance of staking contract usage of WBTC token is : ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.WBTC.decimals) + ' WBTC')
@@ -419,7 +272,6 @@ describe('Test BellaStaking', () => {
         })
 
         let wbtcTokenStaked = await call(stakingContractInstance, 'getBtokenStaked', [wbtcPoolId, initStaker])
-        console.log('[INFO]: WBTC Staked amount is ' + BNUtils.div10pow(new BigNumber(wbtcTokenStaked), tokenAddress.WBTC.decimals) + ' WBTC , holder address: ' + initStaker)
         AssertionUtils.assertBNEq(wbtcTokenStaked, BNUtils.mul10pow(new BigNumber(expectedWbtcTotalStakedAmount), tokenAddress.WBTC.decimals).toString())
     })
 
@@ -431,7 +283,7 @@ describe('Test BellaStaking', () => {
     })
 
     describe('Test user deposit and reward by step', () => {
-        const belRewardAmount = '187200' // 30day * 24 hour *( 60 BEL / hour(USDT) + 200 BEL / hour(WBTC) )
+        const belRewardAmount = '187200' // 30 days * 24 hour *( 60 BEL / hour(USDT) + 200 BEL / hour(WBTC) )
         const userAusdtAmount = '50000'
         const userAwbtcAmount = '10'
         const userA = accounts[3]
@@ -451,16 +303,6 @@ describe('Test BellaStaking', () => {
                 BNUtils.mul10pow(new BigNumber(belRewardAmount), tokenAddress.BEL.decimals).toString(), belRewardUnlockCycle],
                 { from: governanceAddress })
 
-            console.log('[INFO]: Lock ' + belRewardAmount + ' BEL to staking contract at: ' + stakingContractAddress)
-            await AccountUtils.balanceOfERC20Token('BEL', stakingContractAddress).then(res => {
-                console.log('[INFO]: staking contract BEL balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
-            })
-
-
-            await AccountUtils.balanceOfERC20Token('USDT', initStaker).then(res => {
-                console.log('[INFO]: initStaker USDT balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.USDT.decimals) + ' USDT')
-            })
-
             // approve staking contract can use USDT token
             // USDT need to clear allowrance and reapprove
             await AccountUtils.doApprove(
@@ -468,18 +310,12 @@ describe('Test BellaStaking', () => {
                 initStaker,
                 stakingContractAddress,
                 BNUtils.mul10pow(new BigNumber('0'), tokenAddress.USDT.decimals).toString())
-                .then(() => {
-                    console.log('[INFO]: clear USDT approve amount to 0 on address: ' + initStaker)
-                })
 
             await AccountUtils.doApprove(
                 'USDT',
                 initStaker,
                 stakingContractAddress,
                 BNUtils.mul10pow(new BigNumber(expectedUsdtTotalStakedAmount), tokenAddress.USDT.decimals).toString())
-                .then(() => {
-                    console.log('[INFO]: approve ' + expectedUsdtTotalStakedAmount + ' USDT token to staking contract, contract address: ' + stakingContractAddress)
-                })
 
             await call(usdtToken, 'allowance', [initStaker, stakingContractAddress]).then(res => {
                 console.log('[INFO]: Allowance of staking contract usage of USDT token is : ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.USDT.decimals) + ' USDT')
@@ -536,7 +372,6 @@ describe('Test BellaStaking', () => {
             console.log('[INFO]: USDT Staked amount is ' + BNUtils.div10pow(new BigNumber(usdtTokenStaked), tokenAddress.USDT.decimals) + ' USDT , holder address: ' + initStaker)
 
             // init stake WBTC
-
             // approve staking contract can use WBTC token
             // WBTC need to clear allowrance and reapprove
             await AccountUtils.doApprove(
@@ -544,18 +379,12 @@ describe('Test BellaStaking', () => {
                 initStaker,
                 stakingContractAddress,
                 BNUtils.mul10pow(new BigNumber('0'), tokenAddress.WBTC.decimals).toString())
-                .then(() => {
-                    console.log('[INFO]: clear WBTC approve amount to 0 on address: ' + initStaker)
-                })
 
             await AccountUtils.doApprove(
                 'WBTC',
                 initStaker,
                 stakingContractAddress,
                 BNUtils.mul10pow(new BigNumber(expectedDaiTotalStakedAmount), tokenAddress.WBTC.decimals).toString())
-                .then(() => {
-                    console.log('[INFO]: approve ' + expectedDaiTotalStakedAmount + ' WBTC token to staking contract, contract address: ' + stakingContractAddress)
-                })
 
             await call(wbtcToken, 'allowance', [initStaker, stakingContractAddress]).then(res => {
                 console.log('[INFO]: Allowance of staking contract usage of WBTC token is : ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.WBTC.decimals) + ' WBTC')
@@ -615,15 +444,10 @@ describe('Test BellaStaking', () => {
             await AccountUtils.giveERC20Token('USDT', userA, BNUtils.mul10pow(new BigNumber(userAusdtAmount), tokenAddress.USDT.decimals)).then(() => {
                 console.log('[INFO]: Success transfer ' + userAusdtAmount + ' USDT to userA: ' + userA)
             })
-            await AccountUtils.balanceOfERC20Token('USDT', userA).then((res) => {
-                console.log('[INFO]: userA USDT balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.USDT.decimals) + ' USDT')
-            })
+            
             // give userA 20 WBTC
             await AccountUtils.giveERC20Token('WBTC', userA, BNUtils.mul10pow(new BigNumber(userAwbtcAmount), tokenAddress.WBTC.decimals)).then(() => {
                 console.log('[INFO]: Success transfer ' + userAwbtcAmount + ' WBTC to userA: ' + userA)
-            })
-            await AccountUtils.balanceOfERC20Token('WBTC', userA).then((res) => {
-                console.log('[INFO]: userA WBTC balance: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.WBTC.decimals) + ' WBTC')
             })
 
             // userA stake 50000 USDT to pool 0, with type 0, 1, 2
@@ -634,18 +458,12 @@ describe('Test BellaStaking', () => {
                 userA,
                 stakingContractAddress,
                 BNUtils.mul10pow(new BigNumber('0'), tokenAddress.USDT.decimals).toString())
-                .then(() => {
-                    console.log('[INFO]: clear USDT approve amount to 0 on address: ' + userA)
-                })
 
             await AccountUtils.doApprove(
                 'USDT',
                 userA,
                 stakingContractAddress,
                 BNUtils.mul10pow(new BigNumber(userAusdtAmount), tokenAddress.USDT.decimals).toString())
-                .then(() => {
-                    console.log('[INFO]: approve ' + userAusdtAmount + ' USDT token to staking contract, contract address: ' + stakingContractAddress)
-                })
 
             await call(usdtToken, 'allowance', [userA, stakingContractAddress]).then(res => {
                 console.log('[INFO]: Allowance of staking contract usage of USDT token is : ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.USDT.decimals) + ' USDT')
@@ -701,22 +519,12 @@ describe('Test BellaStaking', () => {
                 userA,
                 stakingContractAddress,
                 BNUtils.mul10pow(new BigNumber('0'), tokenAddress.WBTC.decimals).toString())
-                .then(() => {
-                    console.log('[INFO]: clear WBTC approve amount to 0 on address: ' + initStaker)
-                })
 
             await AccountUtils.doApprove(
                 'WBTC',
                 userA,
                 stakingContractAddress,
                 BNUtils.mul10pow(new BigNumber(userAwbtcAmount), tokenAddress.WBTC.decimals).toString())
-                .then(() => {
-                    console.log('[INFO]: approve ' + userAwbtcAmount + ' WBTC token to staking contract, contract address: ' + stakingContractAddress)
-                })
-
-            await call(wbtcToken, 'allowance', [userA, stakingContractAddress]).then(res => {
-                console.log('[INFO]: Allowance of staking contract usage of WBTC token is : ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.WBTC.decimals) + ' WBTC')
-            })
 
             // init stake WBTC as bWbtc
             // function deposit(uint256 _pid, uint256 _amount, uint256 savingType) 
@@ -794,7 +602,7 @@ describe('Test BellaStaking', () => {
 
         it('after 100 hours user can accrately get collectable reward BEL in USDT pool ', async () => {
             // set timestamp plus 100 hours
-            const diff100HoursTimestamp = 360000// 100 * 60 * 60
+            const diff100HoursTimestamp = 360000// 100 hours * 60 minites * 60 second
             const refineBelRewardNumber = 28055
             let earnedBellaAllInUSDTPool
 
@@ -814,18 +622,7 @@ describe('Test BellaStaking', () => {
 
                 earnedBellaAllInUSDTPool = await call(stakingContractInstance, 'earnedBellaAll', [usdtPoolId, userA])
                 console.log('[INFO]: EearnedBelAllUSDT: ' + earnedBellaAllInUSDTPool)
-
-                await call(stakingContractInstance, 'earnedBella', [usdtPoolId, userA, '0']).then((res) => {
-                    console.log('[INFO]: USDT POOL saving type 0 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
-                })
-
-                await call(stakingContractInstance, 'earnedBella', [usdtPoolId, userA, '1']).then((res) => {
-                    console.log('[INFO]: USDT POOL saving type 1 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
-                })
-
-                await call(stakingContractInstance, 'earnedBella', [usdtPoolId, userA, '2']).then((res) => {
-                    console.log('[INFO]: USDT POOL saving type 2 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
-                })
+                
             })
 
             AssertionUtils.assertBNEq(earnedBellaAllInUSDTPool, BNUtils.mul10pow(new BigNumber(refineBelRewardNumber), 16))
@@ -853,22 +650,6 @@ describe('Test BellaStaking', () => {
 
                 earnedBellaAllInWBTCPool = await call(stakingContractInstance, 'earnedBellaAll', [wbtcPoolId, userA])
                 console.log('[INFO]: EearnedBelAllWBTC: ' + earnedBellaAllInWBTCPool)
-
-                await call(stakingContractInstance, 'earnedBella', [wbtcPoolId, userA, '0']).then((res) => {
-                    console.log('[INFO]: WBTC POOL saving type 0 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
-                })
-
-                await call(stakingContractInstance, 'earnedBella', [wbtcPoolId, userA, '1']).then((res) => {
-                    console.log('[INFO]: WBTC POOL saving type 1 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
-                })
-
-                await call(stakingContractInstance, 'earnedBella', [wbtcPoolId, userA, '2']).then((res) => {
-                    console.log('[INFO]: WBTC POOL saving type 2 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
-                })
-
-                await call(stakingContractInstance, 'earnedBella', [wbtcPoolId, userA, '3']).then((res) => {
-                    console.log('[INFO]: WBTC POOL saving type 3 BEL reward: ' + BNUtils.div10pow(new BigNumber(res), tokenAddress.BEL.decimals) + ' BEL')
-                })
             })
 
             AssertionUtils.assertBNEq(earnedBellaAllInWBTCPool, BNUtils.mul10pow(new BigNumber(refineBelRewardNumber), 16))
@@ -917,10 +698,6 @@ describe('Test BellaStaking', () => {
                 console.log('[INFO]: forkedBlockTimestamp: ' + forkedBlockTimestamp)
                 console.log('[INFO]: targetTimestamp: ' + targetTimestamp)
 
-                // check usdt pool staked
-                usdtTokenStaked = await call(stakingContractInstance, 'getBtokenStaked', [usdtPoolId, userA])
-                console.log('[INFO]: USDT Staked amount is ' + BNUtils.div10pow(new BigNumber(usdtTokenStaked), tokenAddress.USDT.decimals) + ' USDT , holder address: ' + userA)
-
                 // unstake USDT from saving type 2, 15days
                 await send(
                     stakingContractInstance, 
@@ -930,9 +707,8 @@ describe('Test BellaStaking', () => {
                     console.log('[INFO]: Unstake ' + unstakeUsdtAmount + ' USDT from saving type ' + savingType15day)
                 })
 
-                // recheck staked amount in USDT pool
+                // check staked amount in USDT pool
                 usdtTokenStaked = await call(stakingContractInstance, 'getBtokenStaked', [usdtPoolId, userA])
-                console.log('[INFO]: USDT Staked amount is ' + BNUtils.div10pow(new BigNumber(usdtTokenStaked), tokenAddress.USDT.decimals) + ' USDT , holder address: ' + userA)
             })
 
             AssertionUtils.assertBNEq(usdtTokenStaked, BNUtils.mul10pow(new BigNumber(expectedStakedAmountInUsdtPool), tokenAddress.USDT.decimals))
@@ -940,7 +716,7 @@ describe('Test BellaStaking', () => {
 
         it('after 100 hours user can get accurately BEL reward from USDT pool, saving type instance', async() => {
             // set timestamp plus 100 hours
-            const diff100HoursTimestamp = 360000 // 100 * 60 * 60
+            const diff100HoursTimestamp = 360000 // 100 hours * 60 mins * 60 sec
             const unstakeUsdtAmount = '5000'
             const savingTypeInstance = '0'
 
@@ -955,10 +731,6 @@ describe('Test BellaStaking', () => {
                 console.log('[INFO]: forkedBlockTimestamp: ' + forkedBlockTimestamp)
                 console.log('[INFO]: targetTimestamp: ' + targetTimestamp)
 
-                // check usdt poolstaked
-                usdtTokenStaked = await call(stakingContractInstance, 'getBtokenStaked', [usdtPoolId, userA])
-                console.log('[INFO]: USDT Staked amount is ' + BNUtils.div10pow(new BigNumber(usdtTokenStaked), tokenAddress.USDT.decimals) + ' USDT , holder address: ' + userA)
-
                 // unstake USDT from saving type 2, 15days
                 await send(
                     stakingContractInstance,
@@ -970,7 +742,6 @@ describe('Test BellaStaking', () => {
 
                 // check usdt poolstaked
                 usdtTokenStaked = await call(stakingContractInstance, 'getBtokenStaked', [usdtPoolId, userA])
-                console.log('[INFO]: USDT Staked amount is ' + BNUtils.div10pow(new BigNumber(usdtTokenStaked), tokenAddress.USDT.decimals) + ' USDT , holder address: ' + userA)
 
                 await send(stakingContractInstance, 'claimBella', [usdtPoolId, savingTypeInstance], { from: userA }).then(() => {
                     console.log('[INFO]: Success call claimBella method by userA ' + userA)
@@ -990,7 +761,7 @@ describe('Test BellaStaking', () => {
 
         it('after 100 hours user can get accurately delayed BEL reward from USDT pool', async() => {
             // set timestamp plus 100 hours
-            const diff100HoursTimestamp = 360000 // 100 * 60 * 60
+            const diff100HoursTimestamp = 360000 // 100 hours * 60 mins * 60 sec
             const unstakeUsdtAmount = '5000'
             const savingType15Days = '2'
 
@@ -1007,11 +778,7 @@ describe('Test BellaStaking', () => {
 
                 console.log('[INFO]: forkedBlockTimestamp: ' + forkedBlockTimestamp)
                 console.log('[INFO]: targetTimestamp: ' + targetTimestamp)
-
-                // check usdt poolstaked
-                usdtTokenStaked = await call(stakingContractInstance, 'getBtokenStaked', [usdtPoolId, userA])
-                console.log('[INFO]: USDT Staked amount is ' + BNUtils.div10pow(new BigNumber(usdtTokenStaked), tokenAddress.USDT.decimals) + ' USDT , holder address: ' + userA)
-
+               
                 // unstake USDT from saving type 2, 15days
                 await send(
                     stakingContractInstance,
@@ -1025,25 +792,15 @@ describe('Test BellaStaking', () => {
                 usdtTokenStaked = await call(stakingContractInstance, 'getBtokenStaked', [usdtPoolId, userA])
                 console.log('[INFO]: USDT Staked amount is ' + BNUtils.div10pow(new BigNumber(usdtTokenStaked), tokenAddress.USDT.decimals) + ' USDT , holder address: ' + userA)
 
-
-                await call(stakingContractInstance, 'userInfos', [usdtPoolId, userA, '1']).then(res => {
-                    console.log('[INFO]: before claimBella, userInfos on saving type 1 --------------------------------------------------------')
-                    console.log(res)
-                })
-                
-              
                // claim usdt pool with saving type 1
                 await send(stakingContractInstance, 'claimAllBella', [usdtPoolId], { from: userA }).then(() => {
                     console.log('[INFO]: Success call claimAllBella method on usdt pool by userA ' + userA)
                 })
 
                 delayedBel = await call(stakingContractInstance, 'delayedBella', [], { from: userA})
-                console.log('[INFO]: Delayed Bel amount: ' + delayedBel)
+                collectableBel = await call(stakingContractInstance, 'collectiableBella', [])
 
                 AssertionUtils.assertBNEq(delayedBel, BNUtils.mul10pow(new BigNumber(expectedDelayedBelAmount), 16))
-
-                collectableBel = await call(stakingContractInstance, 'collectiableBella', [])
-                console.log('[INFO]: collectiableBella Bel amount: ' + collectableBel)
 
                 AssertionUtils.assertBNEq(collectableBel, BNUtils.mul10pow(new BigNumber(expectedCollectableBelAmount), 16))
             })
@@ -1117,8 +874,6 @@ describe('Test BellaStaking', () => {
                 let secondTargetTimestam = firstTargetTimestamp + diff192HoursTimestamp
                 await timeMachine.advanceBlockAndSetTime(secondTargetTimestam)
 
-                console.log('[INFO]: second target timestamp: ' + secondTargetTimestam)
-
                 collectableBel = await call(stakingContractInstance, 'collectiableBella', [], { from: userA})
                 console.log('[INFO]: collectiableBella Bel amount: ' + collectableBel)
 
@@ -1130,7 +885,7 @@ describe('Test BellaStaking', () => {
 
                 // userA collect delayed BEL
                 await send(stakingContractInstance, 'collectBella', [], { from: userA }).then(() => {
-                    console.log('[INFO]: collect delayed BEL reward')
+                    console.log('[INFO]: succeed collect delayed BEL reward')
                 })
 
                 // check userA wallet BEL balance
@@ -1146,8 +901,5 @@ describe('Test BellaStaking', () => {
                 AssertionUtils.assertBNEq(belRewardWaitCollected, BNUtils.mul10pow(new BigNumber(expectedCollectableBelAmount), 16))
             })
         })
-
-
-
     })
 })
