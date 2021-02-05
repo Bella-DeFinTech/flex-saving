@@ -1,6 +1,7 @@
 const deploy = require("./lib/StakingDeploy.js");
 
-jest.setTimeout(30 * 60 * 1000);
+const timeInHour = 60 * 60 * 1000
+jest.setTimeout(8 * timeInHour);
 
 const testVaultAddressObj = {
     bUsdt: "0xdac17f958d2ee523a2206206994597c13d831ec7",

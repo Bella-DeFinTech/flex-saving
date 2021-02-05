@@ -71,7 +71,10 @@ function testSuite(strategyTokenSymbol) {
             // prepare user Token balance(10000 USDT) for testUser and deposit to vault
             await AccountUtils.giveERC20Token(strategyTokenSymbol, testUser, userTokenAmountToDeposit)
             await AccountUtils.doApprove(strategyTokenSymbol, testUser, vaultAddress, userTokenAmountToDeposit)
-            await send(vault, 'deposit', [userTokenAmountToDeposit.toString()], { from: testUser })
+            // withdraw
+            await doTrxAndCalcETHUsed('deposit', async () => {
+                await send(vault, 'deposit', [userTokenAmountToDeposit.toString()], { from: testUser })
+            }, testUser)
 
             // earn 
             await doTrxAndCalcETHUsed('earn', async () => {
@@ -84,8 +87,16 @@ function testSuite(strategyTokenSymbol) {
 
             // let testUser withdraw to make vault buffer balance insufficient
             let testUserBTokenBalance = await call(vault, 'balanceOf', [testUser])
-            let testUserBTokenAmountToWithdraw = new BigNumber(testUserBTokenBalance).muln(8).divn(10)
-            await send(vault, 'withdraw', [testUserBTokenAmountToWithdraw], { from: testUser })
+
+            let testUserBTokenAmountToWithdraw1 = new BigNumber(testUserBTokenBalance).muln(8).divn(100)
+            await doTrxAndCalcETHUsed('withdraw', async () => {
+                await send(vault, 'withdraw', [testUserBTokenAmountToWithdraw1], { from: testUser })
+            }, testUser)
+
+            let testUserBTokenAmountToWithdraw2 = new BigNumber(testUserBTokenBalance).muln(8).divn(10)
+            await doTrxAndCalcETHUsed('withdraw', async () => {
+                await send(vault, 'withdraw', [testUserBTokenAmountToWithdraw2], { from: testUser })
+            }, testUser)
 
             // rebalance
             await doTrxAndCalcETHUsed('rebalance', async () => {

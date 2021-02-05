@@ -1,6 +1,7 @@
 const deploy = require("./lib/Deploy.js");
 
-jest.setTimeout(30 * 60 * 1000);
+const timeInHour = 60 * 60 * 1000
+jest.setTimeout(8 * timeInHour);
 
 describe('Test BellaFlexsaving Deploy', () => {
     it('can deploy all token vault and strategy', async () => {

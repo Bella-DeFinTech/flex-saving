@@ -20,6 +20,8 @@ function vaultTestSuite(strategyTokenSymbol) {
         let strategyAddress
         let strategyToken
         let strategyTokenAddress
+        let controller
+        let controllerAddress
         let snapshotId
 
         beforeAll(async (done) => {
@@ -29,9 +31,11 @@ function vaultTestSuite(strategyTokenSymbol) {
             vaultAddress = deployAddress.vault[strategyTokenSymbol]
             strategyAddress = deployAddress.strategy[strategyTokenSymbol]
             strategyTokenAddress = tokenAddress[strategyTokenSymbol].token
+            controllerAddress = deployAddress.controller
             vault = await saddle.getContractAt('bVault', vaultAddress)
             strategy = await saddle.getContractAt(strategyTokens[strategyTokenSymbol].contractName, strategyAddress)
             strategyToken = await saddle.getContractAt('IERC20', strategyTokenAddress)
+            controller = await saddle.getContractAt('Controller', controllerAddress)
             done()
         })
 
@@ -566,6 +570,60 @@ function vaultTestSuite(strategyTokenSymbol) {
                 let rebalanceTrx = send(vault, 'rebalance', [], { from: governance })
                 // assert throw error
                 await AssertionUtils.assertThrowErrorAsync(rebalanceTrx, 'subtraction overflow')
+            })
+        })
+
+        describe('Test controller withdrawAll', () => {
+            const day = 24 * 60 * 60
+            let testUser = accounts[2]
+            let userTokenAmountToDeposit = BNUtils.mul10pow(new BigNumber('10000'), tokenAddress[strategyTokenSymbol].decimals)
+            let rewardCycleInDay = 10
+            let rewardTokenAmountToLock = BNUtils.mul10pow(new BigNumber('100000'), tokenAddress[strategyTokenSymbol].decimals)
+
+            beforeAll(async (done) => {
+                let snapshot = await timeMachine.takeSnapshot()
+                snapshotId = snapshot['result']
+                console.log('snapshot #' + snapshotId + ' saved!')
+                done()
+            })
+
+            afterAll(async (done) => {
+                await timeMachine.revertToSnapshot(snapshotId)
+                console.log('reverted to snapshot #' + snapshotId)
+                done()
+            })
+
+            beforeEach(async (done) => {
+                // make governance deposit first to mint some bToken
+                await AccountUtils.giveERC20Token(strategyTokenSymbol, governance, userTokenAmountToDeposit)
+                await AccountUtils.doApprove(strategyTokenSymbol, governance, vaultAddress, userTokenAmountToDeposit)
+                await send(vault, 'deposit', [userTokenAmountToDeposit.toString()], { from: governance })
+                // prepare user Token balance(10000 USDT) for testUser and deposit to vault
+                await AccountUtils.giveERC20Token(strategyTokenSymbol, testUser, userTokenAmountToDeposit)
+                await AccountUtils.doApprove(strategyTokenSymbol, testUser, vaultAddress, userTokenAmountToDeposit)
+                await send(vault, 'deposit', [userTokenAmountToDeposit.toString()], { from: testUser })
+                // call earn to invest to curve pool
+                await send(vault, 'earn', [], { from: governance })
+                // prepare for bToken exchange rate
+                {
+                    await AccountUtils.giveERC20Token(strategyTokenSymbol, governance, rewardTokenAmountToLock)
+                    await AccountUtils.doApprove(strategyTokenSymbol, governance, strategyAddress, rewardTokenAmountToLock)
+                    await send(strategy, 'lock', [rewardTokenAmountToLock.toString(), rewardCycleInDay], { from: governance })
+                    // say 5 days
+                    await timeMachine.advanceTimeAndBlock(5 * day)
+                }
+                // do harvest
+                await send(strategy, 'harvest', [], { from: governance })
+                done()
+            })
+
+            it('withdrawAll in happy path', async () => {
+                let vaultBalanceBefore = await call(vault, 'balance', [])
+                await send(controller, 'withdrawAll', [strategyTokenAddress], { from: governance })
+                let vaultBalanceAfter = await call(vault, 'balance', [])
+                let vaultBufferBalance = await AccountUtils.balanceOfERC20Token(strategyTokenSymbol, vaultAddress)
+                AssertionUtils.assertBNApproxRange(vaultBufferBalance, vaultBalanceBefore, 5, 10000)
+                AssertionUtils.assertBNApproxRange(vaultBufferBalance, vaultBalanceAfter, 5, 10000)
             })
         })
     }
