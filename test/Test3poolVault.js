@@ -17,11 +17,11 @@ describe('Test BellaFlexsaving DAI Vault', vaultTestSuite('DAI'))
 
 function vaultTestSuite(strategyTokenSymbol) {
     return () => {
-        const governance = accounts[0]
         const poolTokenSymbol = '_3pool'
         const poolParam = curvePoolConstant[poolTokenSymbol].param
         const curve3poolAddress = poolParam.curvePoolAddress
         const curveGaugeAddress = poolParam.curveGaugeAddress
+        let governance
         let vault
         let vaultAddress
         let strategy
@@ -33,6 +33,7 @@ function vaultTestSuite(strategyTokenSymbol) {
         let snapshotId
         beforeAll(async (done) => {
             let deployAddress = await deploy(saddle, accounts[0], accounts, [strategyTokens[strategyTokenSymbol].index])
+            governance = deployAddress.governance
             vaultAddress = deployAddress.vault[strategyTokenSymbol]
             strategyAddress = deployAddress.strategy[strategyTokenSymbol]
             strategyTokenAddress = tokenAddress[strategyTokenSymbol].token

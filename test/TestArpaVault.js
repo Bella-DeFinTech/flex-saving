@@ -13,7 +13,7 @@ describe('Test BellaFlexsaving ARPA Vault', vaultTestSuite('ARPA'))
 
 function vaultTestSuite(strategyTokenSymbol) {
     return () => {
-        const governance = accounts[0]
+        let governance
         let vault
         let vaultAddress
         let strategy
@@ -28,6 +28,7 @@ function vaultTestSuite(strategyTokenSymbol) {
             let trxBlock = await web3.eth.getBlock('latest')
             let arpaVaultStartTimestamp = trxBlock.timestamp
             let deployAddress = await deploy(saddle, accounts[0], accounts, [strategyTokens[strategyTokenSymbol].index], arpaVaultStartTimestamp)
+            governance = deployAddress.governance
             vaultAddress = deployAddress.vault[strategyTokenSymbol]
             strategyAddress = deployAddress.strategy[strategyTokenSymbol]
             strategyTokenAddress = tokenAddress[strategyTokenSymbol].token
