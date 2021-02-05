@@ -71,7 +71,12 @@ contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
     
     function balance() public view returns (uint) {
         return token.balanceOf(address(this))
-              .add(IController(controller).balanceOf(address(token)));
+            .add(IController(controller).balanceOf(address(token)));
+    }
+
+    function underlyingBalance() public view returns (uint) {
+        return token.balanceOf(address(this))
+            .add(IController(controller).underlyingBalanceOf(address(token)));
     }
     
     function setMin(uint _min) external {
@@ -147,7 +152,7 @@ contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
     }
 
     function _withdraw(address user, uint _shares) private {
-        uint r = (balance().mul(_shares)).div(totalSupply());
+        uint r = (underlyingBalance().mul(_shares)).div(totalSupply());
 
         _burn(user, _shares);
 

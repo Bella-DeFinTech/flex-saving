@@ -247,12 +247,24 @@ contract StrategyWbtc is CrvLocker {
                 .add(balanceInPool());
     }
     
+    function underlyingBalanceOf() public view returns (uint) {
+        return IERC20(want).balanceOf(address(this))
+                .add(underlyingBalanceInPool());
+    }
+
     function balanceInPool() public view returns (uint256) {
         return ICrvDeposit(hBTCGauge).balanceOf(address(this))
             .mul(ICrvPool2Coins(hBTCPool).get_virtual_price()).div(1e18)
             .div(TO_HCRV_DECIMALS);
     }
-    
+
+    function underlyingBalanceInPool() public view returns (uint256) {
+        uint balance = ICrvDeposit(hBTCGauge).balanceOf(address(this));
+        uint balanceVirtual = balance.mul(ICrvPool2Coins(hBTCPool).get_virtual_price()).div(1e18).div(TO_HCRV_DECIMALS);
+        uint balanceUnderlying = ICrvPool2Coins(hBTCPool).calc_withdraw_one_coin(balance, tokenIndexHBTCPool);
+        return Math.min(balanceVirtual, balanceUnderlying);
+    }
+
     function setGovernance(address _governance) external {
         require(msg.sender == governance, "!governance");
         governance = _governance;

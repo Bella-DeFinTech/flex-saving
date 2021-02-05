@@ -234,10 +234,22 @@ contract StrategyUsdc is CrvLocker {
                 .add(balanceInPool());
     }
     
+    function underlyingBalanceOf() public view returns (uint) {
+        return IERC20(want).balanceOf(address(this))
+                .add(underlyingBalanceInPool());
+    }
+
     function balanceInPool() public view returns (uint256) {
         return ICrvDeposit(threePoolGauge).balanceOf(address(this))
             .mul(ICrvPool(threePool).get_virtual_price()).div(1e18)
             .div(TO_THREE_POOL_CRV_DECIMALS);
+    }
+
+    function underlyingBalanceInPool() public view returns (uint256) {
+        uint balance = ICrvDeposit(threePoolGauge).balanceOf(address(this));
+        uint balanceVirtual = balance.mul(ICrvPool(threePool).get_virtual_price()).div(1e18).div(TO_THREE_POOL_CRV_DECIMALS);
+        uint balanceUnderlying = ICrvPool(threePool).calc_withdraw_one_coin(balance, tokenIndexThreePool);
+        return Math.min(balanceVirtual, balanceUnderlying);
     }
     
     function setGovernance(address _governance) external {
