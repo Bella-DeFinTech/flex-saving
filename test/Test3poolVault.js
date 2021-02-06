@@ -681,10 +681,8 @@ function vaultTestSuite(strategyTokenSymbol) {
 
             it('withdrawAll in happy path', async () => {
                 let vaultBalanceBefore = await call(vault, 'underlyingBalance', [])
-                console.log(vaultBalanceBefore.toString())
                 await send(controller, 'withdrawAll', [strategyTokenAddress], { from: governance })
                 let vaultBalanceAfter = await call(vault, 'underlyingBalance', [])
-                console.log(vaultBalanceAfter.toString())
                 let vaultBufferBalance = await AccountUtils.balanceOfERC20Token(strategyTokenSymbol, vaultAddress)
                 AssertionUtils.assertBNApproxRange(vaultBufferBalance, vaultBalanceBefore, 5, 10000)
                 AssertionUtils.assertBNApproxRange(vaultBufferBalance, vaultBalanceAfter, 5, 10000)
