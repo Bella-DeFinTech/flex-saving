@@ -260,6 +260,9 @@ contract StrategyWbtc is CrvLocker {
 
     function underlyingBalanceInPool() public view returns (uint256) {
         uint balance = ICrvDeposit(hBTCGauge).balanceOf(address(this));
+        if (balance == 0) {
+            return 0;
+        }
         uint balanceVirtual = balance.mul(ICrvPool2Coins(hBTCPool).get_virtual_price()).div(1e18).div(TO_HCRV_DECIMALS);
         uint balanceUnderlying = ICrvPool2Coins(hBTCPool).calc_withdraw_one_coin(balance, tokenIndexHBTCPool);
         return Math.min(balanceVirtual, balanceUnderlying);
