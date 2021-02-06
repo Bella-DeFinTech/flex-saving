@@ -47,13 +47,23 @@ module.exports = async function (saddle, deployer, governance, customVaultAddres
         addNewContent('')
     }
 
+    function isEmpty(obj) {
+        for (var prop in obj) {
+            if (obj.hasOwnProperty(prop)) {
+                return false;
+            }
+        }
+    
+        return JSON.stringify(obj) === JSON.stringify({});
+    }
+
     function getBtokenAddress(token) {
         let vaultAddress = ''
         let vaultAddressObj
 
         console.log('-----------------------------------------------------------------')
         console.log("customVaultAddressObj" + customVaultAddressObj)
-        if (customVaultAddressObj === {}) {
+        if (isEmpty(customVaultAddressObj)) {
             let rawVaultAddressJson = fs.readFileSync(vaultAddressFilename);
             vaultAddressObj = JSON.parse(rawVaultAddressJson);
         }
