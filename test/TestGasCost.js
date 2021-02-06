@@ -5,6 +5,7 @@ const deploy = require("./lib/Deploy.js")
 const BigNumber = require('bn.js')
 const tokenAddress = require('./const/Token.js')
 const strategyTokens = require('./const/StrategyToken.js')
+const deployStaking = require("./lib/StakingDeploy.js");
 
 jest.setTimeout(30 * 60 * 1000)
 
@@ -55,7 +56,7 @@ function testSuite(strategyTokenSymbol) {
             done()
         })
 
-        test('simulate and calculate cost', async () => {
+        test('simulate and calculate FS cost', async () => {
             // deploy
             let deployAddress = await doTrxAndCalcETHUsed('deploy', async () => {
                 return await deploy(saddle, governance, accounts, [strategyTokens[strategyTokenSymbol].index])
@@ -105,6 +106,14 @@ function testSuite(strategyTokenSymbol) {
 
         })
 
+        test.only('simulate and calculate staking deploy cost', async () => {
+            // deploy
+            const deployer = accounts[4]
+
+            await doTrxAndCalcETHUsed('deploy 2 staking pool', async () => {
+                await deployStaking(saddle, deployer, governance)
+            }, deployer)
+        })
     }
 }
 
