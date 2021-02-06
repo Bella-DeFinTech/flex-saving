@@ -13,11 +13,7 @@ module.exports = {
   coverage_dir: "coverage",                             // Directory to place coverage files
   coverage_ignore: [],                                  // List of files to ignore for coverage
   contracts: process.env['SADDLE_CONTRACTS'] || 'contracts/**/*.sol',                         // Glob to match contract files
-<<<<<<< HEAD
-  tests: ['**/test/TestGasCost.js'],                             // Glob to match test files
-=======
   tests: ['**/test/TestFlexsavingDeploy.js'],                             // Glob to match test files
->>>>>>> stage changes
   trace: false,                                         // Compile with debug artifacts
   networks: {                                           // Define configuration for each network
     development: {
