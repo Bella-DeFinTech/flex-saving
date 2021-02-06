@@ -34,9 +34,9 @@ contract StrategyBusd is CrvLocker {
 
     address constant public want = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // busd
     address constant public usdt = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // usdt
-    address constant public busdPool = address(0x79a8C46DeA5aDa233ABaFFD40F3A0A2B1e5A4F27); // bCrv swap
-    address constant public busdPoolZap = address(0xb6c057591E073249F2D9D88Ba59a46CFC9B59EdB); // bCrv swap zap
-    address constant public bCrvGauge = address(0x69Fb7c45726cfE2baDeE8317005d3F94bE838840); // bCrv gauge
+    address constant public busdPool = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // bCrv swap
+    address constant public busdPoolZap = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // bCrv swap zap
+    address constant public bCrvGauge = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // bCrv gauge
     address constant public bCrv = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // bCrv
     address constant public bella = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB);
     address constant public weth = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB);

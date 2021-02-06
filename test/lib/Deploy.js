@@ -9,7 +9,7 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
   const deploy = saddle.deploy
   const send = saddle.send
   const web3 = saddle.web3
-
+  let deployerTrxNonce = await web3.eth.getTransactionCount(deployer, 'latest')
   // -----------------------PRODUCTION PARAMTERS --------------------------------
   const governanceAddress = '0x10f919f874dB00239a1f891d96279Ff999514B82'
   const firemanAddress = '0x10f919f874dB00239a1f891d96279Ff999514B82'
@@ -169,6 +169,7 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
     //  console.log('[INFO] Add ' + token.symbol + ' to WhiteList Contract\n    ' + whitelistInstance._address)
 
     return deploy('bVault', [token._address, controllerInstance._address, whitelistInstance._address], { from: deployer }).then((_bvaultInstance) => {
+      deployerTrxNonce++
       bvaultInstance = _bvaultInstance
 
       addNewContent('[' + token.symbol + ' VAULT]: ' + token.symbol + ' VaultAddress: ' + bvaultInstance._address)
@@ -181,6 +182,7 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
         return deploy(strategy, [controllerInstance._address, deployer], { from: deployer })
       }
     }).then((_strategyContractInstance) => {
+      deployerTrxNonce++
       strategyContractInstance = _strategyContractInstance
       addNewContent('[' + token.symbol + ' VAULT]: ' + token.symbol + ' StrategyAddress: ' + strategyContractInstance._address)
 
@@ -190,32 +192,37 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
       console.log('[INFO]: Target token is: ' + token.symbol + ' Token')
 
       return saddle.getContractAt('IERC20', token._address).then((tokenContractInstance) => {
-        send(tokenContractInstance, 'approve', [strategyContractInstance._address, web3.utils.toWei('100000000', 'ether')], { from: deployer })
+        send(tokenContractInstance, 'approve', [strategyContractInstance._address, web3.utils.toWei('100000000', 'ether')], { from: deployer, nonce: deployerTrxNonce })
       })
     }).then(() => {
+      deployerTrxNonce++
       console.log('[INFO]: ' + token.symbol + ' token contract approve, strategy contract address: ' + strategyContractInstance._address)
 
-      return send(controllerInstance, 'setVault', [token._address, bvaultInstance._address], { from: deployer })
+      return send(controllerInstance, 'setVault', [token._address, bvaultInstance._address], { from: deployer, nonce: deployerTrxNonce })
     }).then(() => {
+      deployerTrxNonce++
       console.log('[INFO]: Controller setVault(): \n    '
         + token.symbol + ' Token address: ' + token._address
         + '\n   Vault address: ' + bvaultInstance._address)
 
-      return send(controllerInstance, 'setStrategy', [token._address, strategyContractInstance._address], { from: deployer })
+      return send(controllerInstance, 'setStrategy', [token._address, strategyContractInstance._address], { from: deployer, nonce: deployerTrxNonce })
     }).then(() => {
+      deployerTrxNonce++
       console.log('[INFO]: Controller setStrategy(): \n   '
         + token.symbol + ' Token address: ' + token._address
         + '\n   Strategy address: ' + strategyContractInstance._address)
 
-      return send(bvaultInstance, 'setGovernance', [governanceAddress], { from: deployer })
+      return send(bvaultInstance, 'setGovernance', [governanceAddress], { from: deployer, nonce: deployerTrxNonce })
     }).then(() => {
+      deployerTrxNonce++
       addNewContent('[' + token.symbol + ' VAULT]:  Change governance address:'
         + '\n    from: ' + deployer
         + '\n    to: ' + governanceAddress)
 
 
-      return send(strategyContractInstance, 'setGovernance', [governanceAddress], { from: deployer })
+      return send(strategyContractInstance, 'setGovernance', [governanceAddress], { from: deployer, nonce: deployerTrxNonce })
     }).then(() => {
+      deployerTrxNonce++
       addNewContent('[' + token.symbol + ' STRATEGY]:  Change governance address:'
         + '\n    from: ' + deployer
         + '\n    to: ' + governanceAddress)
@@ -226,6 +233,7 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
 
   return deploy('Controller', [strategyTokenRewardsAddress, BELRewardsAddress, deployer, firemanAddress], { from: deployer }).then(
     (_controllerInstance) => {
+      deployerTrxNonce++
       controllerInstance = _controllerInstance
       deployAddress.controller = controllerInstance._address
       addNewContent('[FLEX SAVINGS] ControllerAddress: ' + controllerInstance._address)
@@ -233,6 +241,7 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
       // related contract deployment
       return deploy('WhiteList', [deployer], { from: deployer })
     }).then((_whitelistInstance) => {
+      deployerTrxNonce++
       whitelistInstance = _whitelistInstance
       deployAddress.whitelist = whitelistInstance._address
       addNewContent('[FLEX SAVINGS] WhitelistAddress: ' + whitelistInstance._address)
@@ -240,26 +249,35 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
       return addVault(controllerInstance, whitelistInstance, 'StrategyUsdt', strategyTokens.USDT)
     }).then(() => {
       return addVault(controllerInstance, whitelistInstance, 'StrategyUsdc', strategyTokens.USDC)
-    }).then(() => {
-      return addVault(controllerInstance, whitelistInstance, 'StrategyWbtc', strategyTokens.WBTC)
-    }).then(() => {
+    })
+    // .then(() => {
+    //   return addVault(controllerInstance, whitelistInstance, 'StrategyWbtc', strategyTokens.WBTC)
+    // })
+    .then(() => {
       return addVault(controllerInstance, whitelistInstance, 'StrategyArpa', strategyTokens.ARPA)
-    }).then(() => {
-      return addVault(controllerInstance, whitelistInstance, 'StrategyDai', strategyTokens.DAI)
-    }).then(() => {
-      return addVault(controllerInstance, whitelistInstance, 'StrategyBusd', strategyTokens.BUSD)
-    }).then(() => {
-      return addVault(controllerInstance, whitelistInstance, 'StrategyHbtc', strategyTokens.HBTC)
-    }).then(() => {
-      return send(controllerInstance, 'setGovernance', [governanceAddress], { from: deployer })
-    }).then(() => {
+    })
+    // .then(() => {
+    //   return addVault(controllerInstance, whitelistInstance, 'StrategyDai', strategyTokens.DAI)
+    // })
+    // .then(() => {
+    //   return addVault(controllerInstance, whitelistInstance, 'StrategyBusd', strategyTokens.BUSD)
+    // })
+    // .then(() => {
+    //   return addVault(controllerInstance, whitelistInstance, 'StrategyHbtc', strategyTokens.HBTC)
+    // })
+    .then(() => {
+      return send(controllerInstance, 'setGovernance', [governanceAddress], { from: deployer, nonce: deployerTrxNonce })
+    })
+    .then(() => {
+      deployerTrxNonce++
       addNewContent('')
       addNewContent('[FLEX SAVINGS] Change ControllerContract governance address:'
         + '\n    from: ' + deployer
         + '\n    to: ' + governanceAddress)
 
-      return send(whitelistInstance, 'transferOwnership', [governanceAddress], { from: deployer })
+      return send(whitelistInstance, 'transferOwnership', [governanceAddress], { from: deployer, nonce: deployerTrxNonce })
     }).then(() => {
+      deployerTrxNonce++
       addNewContent('')
       addNewContent('[FLEX SAVINGS] Change WhiteList governance address:'
         + '\n    from: ' + deployer

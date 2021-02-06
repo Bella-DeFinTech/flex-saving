@@ -88,7 +88,7 @@ contract Controller {
 
     function setVault(address _token, address _vault) public {
         require( msg.sender == governance, "!governance");
-        require(vaults[_token] == address(0), "vault");
+        // require(vaults[_token] == address(0), "vault");
         require(IVault(_vault).token() == _token, "inconsist token in vault!");
         vaults[_token] = _vault;
     }
@@ -102,9 +102,9 @@ contract Controller {
         require(msg.sender == governance, "!governance");
         require(IStrategy(_strategy).want() == _token, "incosist token in strategy!");
         address _current = strategies[_token];
-        if (_current != address(0)) {
-            IStrategy(_current).withdrawAll();
-        }
+        // if (_current != address(0)) {
+        //     IStrategy(_current).withdrawAll();
+        // }
         strategies[_token] = _strategy;
     }
     
