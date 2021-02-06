@@ -7,4 +7,5 @@ interface IStrategy {
   function withdraw(uint256) external;
   function withdrawAll() external returns (uint256);
   function balanceOf() external view returns (uint256);
+  function underlyingBalanceOf() external view returns (uint256);
 }

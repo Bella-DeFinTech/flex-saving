@@ -129,6 +129,10 @@ contract Controller {
     function balanceOf(address _token) external view returns (uint256) {
         return IStrategy(strategies[_token]).balanceOf();
     }
+
+    function underlyingBalanceOf(address _token) external view returns (uint256) {
+        return IStrategy(strategies[_token]).underlyingBalanceOf();
+    }
     
     function withdrawAll(address _token) public {
         require(msg.sender == governance || msg.sender == fireman, "!governance");

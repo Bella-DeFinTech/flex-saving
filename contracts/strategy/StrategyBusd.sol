@@ -250,8 +250,23 @@ contract StrategyBusd is CrvLocker {
                 .add(balanceInPool());
     }
     
+    function underlyingBalanceOf() public view returns (uint) {
+        return IERC20(want).balanceOf(address(this))
+                .add(underlyingBalanceInPool());
+    }
+
     function balanceInPool() public view returns (uint256) {
         return ICrvDeposit(bCrvGauge).balanceOf(address(this)).mul(ICrvPoolUnderlying(busdPool).get_virtual_price()).div(1e18);
+    }
+
+    function underlyingBalanceInPool() public view returns (uint256) {
+        uint balance = ICrvDeposit(bCrvGauge).balanceOf(address(this));
+        if (balance == 0) {
+            return 0;
+        }
+        uint balanceVirtual = balance.mul(ICrvPoolUnderlying(busdPool).get_virtual_price()).div(1e18);
+        uint balanceUnderlying = ICrvPoolZap(busdPoolZap).calc_withdraw_one_coin(balance, tokenIndexBusd);
+        return Math.min(balanceVirtual, balanceUnderlying);
     }
     
     function setGovernance(address _governance) external {

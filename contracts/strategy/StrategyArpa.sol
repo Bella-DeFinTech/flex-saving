@@ -118,6 +118,13 @@ contract StrategyArpa {
         return IERC20(want).balanceOf(address(this));
     }
     
+    /**
+     * @return deposited arpa + unlocked arpa rewards
+     */
+    function underlyingBalanceOf() public view returns (uint) {
+        return IERC20(want).balanceOf(address(this));
+    }
+    
     function setGovernance(address _governance) external {
         require(msg.sender == governance, "!governance");
         governance = _governance;

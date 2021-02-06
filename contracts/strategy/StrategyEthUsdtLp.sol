@@ -209,6 +209,11 @@ contract StrategyETH_USDT_LP {
         return balanceOfWant()
                .add(balanceOfPool());
     }
+
+    function underlyingBalanceOf() public view returns (uint) {
+        return balanceOfWant()
+               .add(balanceOfPool());
+    }
     
     function setGovernance(address _governance) external {
         require(msg.sender == governance, "!governance");
