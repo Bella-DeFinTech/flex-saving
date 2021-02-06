@@ -34,16 +34,16 @@ contract StrategyETH_USDT_LP {
     // usdc 0xB4e16d0168e52d35CaCD2c6185b44281Ec28C9Dc
     // wbtc 0xBb2b8038a1640196FbE3e38816F3e67Cba72D940
     address constant public want = address(0x0d4a11d5EEaaC28EC3F61d100daF4d40471f1852); // LP
-    address constant public unirouter = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-    address constant public bella = address(0xA91ac63D040dEB1b7A5E4d4134aD23eb0ba07e14);
+    address constant public unirouter = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB);
+    address constant public bella = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB);
     address constant public output = address(0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984); // UNI   
-    address constant public weth = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+    address constant public weth = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB);
     // TODO: change pair (= another token in lp) according to usdt/dai/usdc/wbtc
-    // usdt 0xdAC17F958D2ee523a2206206994597C13D831ec7
-    // dai 0x6B175474E89094C44Da98b954EedeAC495271d0F
-    // usdc 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
-    // wbtc 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599
-    address constant public pair = address(0xdAC17F958D2ee523a2206206994597C13D831ec7); // usdt
+    // usdt 0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB
+    // dai 0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB
+    // usdc 0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB
+    // wbtc 0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB
+    address constant public pair = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // usdt
     // TODO: change miner according to usdt/dai/usdc/wbtc
     // usdt 0x6C3e4cb2E96B01F4b866965A91ed4437839A121a
     // dai 0xa1484C3aa22a66C62b77E0AE78E15258bd0cB711

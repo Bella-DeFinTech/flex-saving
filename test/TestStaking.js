@@ -19,10 +19,10 @@ describe('Test BellaStaking', () => {
         bUsdt: tokenAddress.USDT.token,
         // bUsdc: tokenAddress.USDC.token,
         bWbtc: tokenAddress.WBTC.token,
-        // bArpa: "0xba50933c268f567bdc86e1ac131be072c6b0b71a",
+        // bArpa: "0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB",
         // bDai: tokenAddress.DAI.token,
-        // bBusd: "0x4fabb145d64652a948d72533023f6e7a623c7c53",
-        // bHbtc: "0x0316EB71485b0Ab14103307bf65a021042c6d380"
+        // bBusd: "0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB",
+        // bHbtc: "0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB"
     }
 
     const usdtPoolId = '0'

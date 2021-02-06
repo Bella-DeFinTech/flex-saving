@@ -25,7 +25,7 @@ function testSuite(strategyTokenSymbol) {
         let snapshotId
         let testUser = accounts[2]
         let userTokenAmountToDeposit = BNUtils.mul10pow(new BigNumber('10000'), tokenAddress[strategyTokenSymbol].decimals)
-        const curveGaugeAddress = '0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A'
+        const curveGaugeAddress = '0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB'
 
         async function getETHBalance(msg, address = governance) {
             console.log(msg)

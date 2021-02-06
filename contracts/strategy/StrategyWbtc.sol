@@ -32,18 +32,18 @@ contract StrategyWbtc is CrvLocker {
     using SafeMath for uint256;
 
     // TODO: change want according to wBTC/hBTC
-    // HBTC 0x0316EB71485b0Ab14103307bf65a021042c6d380
-    // WBTC 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599
-    address constant public want = address(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599); // wBTC
-    address constant public hBTCPool = address(0x4CA9b3063Ec5866A4B82E437059D2C43d1be596F); // hBTC Pool
-    address constant public hBTCGauge = address(0x4c18E409Dc8619bFb6a1cB56D114C3f592E0aE79); // hBTC gauge
-    address constant public hCrv = address(0xb19059ebb43466C323583928285a49f558E572Fd); // hCrv
-    address constant public bella = address(0xA91ac63D040dEB1b7A5E4d4134aD23eb0ba07e14);
-    address constant public weth = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
-    address constant public output = address(0xD533a949740bb3306d119CC777fa900bA034cd52); // CRV   
-    address constant public unirouter = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+    // HBTC 0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB
+    // WBTC 0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB
+    address constant public want = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // wBTC
+    address constant public hBTCPool = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // hBTC Pool
+    address constant public hBTCGauge = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // hBTC gauge
+    address constant public hCrv = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // hCrv
+    address constant public bella = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB);
+    address constant public weth = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB);
+    address constant public output = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // CRV   
+    address constant public unirouter = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB);
     address constant public crv_minter = address(0xd061D61a4d941c39E5453435B6345Dc261C2fcE0);
-    address constant public wBTC = address(0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599); // wBTC (used to convert from crv to hCrv)
+    address constant public wBTC = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // wBTC (used to convert from crv to hCrv)
 
     uint256 constant public TO_HCRV_DECIMALS = 1e10; // 1e18 hCrv / 1e8 wbtc
 

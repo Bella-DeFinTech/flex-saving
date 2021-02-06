@@ -11,10 +11,10 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
   const web3 = saddle.web3
 
   // -----------------------PRODUCTION PARAMTERS --------------------------------
-  const governanceAddress = accounts[5]
-  const firemanAddress = accounts[6]
-  const strategyTokenRewardsAddress = accounts[7]
-  const BELRewardsAddress = accounts[8]
+  const governanceAddress = '0x10f919f874dB00239a1f891d96279Ff999514B82'
+  const firemanAddress = '0x10f919f874dB00239a1f891d96279Ff999514B82'
+  const strategyTokenRewardsAddress = '0x10f919f874dB00239a1f891d96279Ff999514B82'
+  const BELRewardsAddress = '0x10f919f874dB00239a1f891d96279Ff999514B82'
 
   const deployAddress = {
     controller: '',
@@ -55,7 +55,7 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
     bHbtc: '',
   }
 
-  console.log('[INFO]: Current account: ' + accounts[0])
+  // console.log('[INFO]: Current account: ' + accounts[0])
   // console.log('[INFO]: Current network: ' + network)
 
   // Deploy info file, DO NOT CHANGE NAME

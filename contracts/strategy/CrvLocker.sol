@@ -13,7 +13,7 @@ contract CrvLocker is Ownable {
     constructor(address owner) public Ownable(owner) {}
 
     address constant public voting_escrow = address(0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2);
-    IERC20 constant public crv = IERC20(0xD533a949740bb3306d119CC777fa900bA034cd52);
+    IERC20 constant public crv = IERC20(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB);
 
     /**
      * @dev Lock CRV to enhance CRV rewards

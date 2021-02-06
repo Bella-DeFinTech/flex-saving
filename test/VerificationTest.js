@@ -87,7 +87,7 @@ describe('Test BellaFlexsaving Strategy, take USDT for example', () => {
             // console.log(virtualPrice0)
             // console.log(virtualPrice1)
 
-            const curve3poolAddress = '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7'
+            const curve3poolAddress = '0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB'
             const curve3poolInstance = new web3.eth.Contract(curve3pool.abiArray, curve3poolAddress);
             let virtualPrice = await curve3poolInstance.methods.get_virtual_price().call({}, 'latest')
             console.log(virtualPrice)

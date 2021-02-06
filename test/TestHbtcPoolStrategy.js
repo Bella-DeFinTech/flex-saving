@@ -95,7 +95,7 @@ function strategyTestSuite(strategyTokenSymbol) {
             const curveHbtcPoolInstance = new web3.eth.Contract(curveHbtcPool.abiArray, curveHbtcPoolAddress)
             const curveGaugeAddress = poolParam.curveGaugeAddress
             const curveGaugeInstance = new web3.eth.Contract(curveGauge.abiArray, curveGaugeAddress)
-            const uniswapV2Router02Address = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
+            const uniswapV2Router02Address = '0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB'
             const uniswapV2Router02Instance = new web3.eth.Contract(uniswapV2Router02.abiArray, uniswapV2Router02Address)
             const crvToStrategyTokenPortion = 92 // 20% manager fee + 80% * 90%
             const strategyTokenManageFeePortion = 22 // 92% * 22% = 20%

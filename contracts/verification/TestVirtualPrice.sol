@@ -15,10 +15,10 @@ contract TestVirtualPrice {
     uint256 public virtualPrice0;
     uint256 public virtualPrice1;
     // 0 = dai, 1 = usdc, 2 = usdt in 3pool
-    address constant public usdt = address(0xdAC17F958D2ee523a2206206994597C13D831ec7); // usdt
-    address constant public dai = address(0x6B175474E89094C44Da98b954EedeAC495271d0F); // dai
-    address constant public threeCrv = address(0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490); // 3pool crv
-    address constant public threePool = address(0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7); // 3pool swap
+    address constant public usdt = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // usdt
+    address constant public dai = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // dai
+    address constant public threeCrv = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // 3pool crv
+    address constant public threePool = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // 3pool swap
 
     constructor() public {
         doApprove();

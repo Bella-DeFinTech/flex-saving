@@ -26,8 +26,8 @@ const poolParam = {
         PRECISION: () => BNUtils.get10pow(18), //The precision to convert to 
         FEE_DENOMINATOR: () => BNUtils.get10pow(10),
         PRECISION_MUL: () => [new BigNumber(1), BNUtils.get10pow(12), BNUtils.get10pow(12)],
-        curveGaugeAddress: '0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A',
-        curvePoolAddress: '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7',
+        curveGaugeAddress: '0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB',
+        curvePoolAddress: '0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB',
         curvePoolCrvAddress: tokenAddress._3CRV.token,
         curvePoolInstance: function () {
             return new web3.eth.Contract(curve3pool.abiArray, this.curvePoolAddress)
@@ -52,8 +52,8 @@ const poolParam = {
         PRECISION: () => BNUtils.get10pow(18), //The precision to convert to 
         FEE_DENOMINATOR: () => BNUtils.get10pow(10),
         PRECISION_MUL: () => [new BigNumber(1), BNUtils.get10pow(10)],
-        curveGaugeAddress: '0x4c18E409Dc8619bFb6a1cB56D114C3f592E0aE79',
-        curvePoolAddress: '0x4CA9b3063Ec5866A4B82E437059D2C43d1be596F',
+        curveGaugeAddress: '0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB',
+        curvePoolAddress: '0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB',
         curvePoolCrvAddress: tokenAddress.hCRV.token,
         curvePoolInstance: function () {
             return new web3.eth.Contract(curveHbtcPool.abiArray, this.curvePoolAddress)

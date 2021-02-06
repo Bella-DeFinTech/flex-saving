@@ -32,17 +32,17 @@ contract StrategyUsdt is CrvLocker {
     using SafeMath for uint256;
 
     // TODO: change want according to dai/usdt/usdc
-    // dai 0x6B175474E89094C44Da98b954EedeAC495271d0F
-    // usdc 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
-    // usdt 0xdAC17F958D2ee523a2206206994597C13D831ec7
-    address constant public want = address(0xdAC17F958D2ee523a2206206994597C13D831ec7); // usdt
-    address constant public threePool = address(0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7); // 3pool swap
-    address constant public threePoolGauge = address(0xbFcF63294aD7105dEa65aA58F8AE5BE2D9d0952A); // 3pool gauge
-    address constant public threePoolCrv = address(0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490); // 3pool crv
-    address constant public bella = address(0xA91ac63D040dEB1b7A5E4d4134aD23eb0ba07e14);
-    address constant public weth = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
-    address constant public output = address(0xD533a949740bb3306d119CC777fa900bA034cd52); // CRV   
-    address constant public unirouter = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+    // dai 0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB
+    // usdc 0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB
+    // usdt 0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB
+    address constant public want = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // usdt
+    address constant public threePool = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // 3pool swap
+    address constant public threePoolGauge = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // 3pool gauge
+    address constant public threePoolCrv = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // 3pool crv
+    address constant public bella = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB);
+    address constant public weth = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB);
+    address constant public output = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // CRV   
+    address constant public unirouter = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB);
     address constant public crv_minter = address(0xd061D61a4d941c39E5453435B6345Dc261C2fcE0);
 
     uint256 constant public TO_THREE_POOL_CRV_DECIMALS = 1e12; // 1e18 3poolcrv / 1e6 usdt

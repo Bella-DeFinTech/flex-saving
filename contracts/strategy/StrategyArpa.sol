@@ -27,7 +27,7 @@ contract StrategyArpa {
     using Address for address;
     using SafeMath for uint256;
 
-    address constant public want = address(0xBA50933C268F567BDC86E1aC131BE072C6B0b71a); // arpa
+    address constant public want = address(0xD1E00Ce58A12e77E736A6417fb5FE6E0f08697AB); // arpa
 
     address public governance;
     address public controller;
