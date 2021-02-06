@@ -106,12 +106,12 @@ contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
     /**
      * @dev Rebalance the buffer to make withdraw cheaper
      */
-    function rebalance() public notPaused {
+    function rebalance() public onlyWhiteListed notPaused {
         uint256 amount = IController(controller).balanceOf(address(token)).sub(balance().mul(min).div(max));
         IController(controller).withdraw(address(token), amount);
     }
     
-    function earn() public notPaused {
+    function earn() public onlyWhiteListed notPaused {
         require(msg.sender == tx.origin ,"!contract");
 
         uint _bal = available();
