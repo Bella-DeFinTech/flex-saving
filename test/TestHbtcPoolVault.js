@@ -312,7 +312,7 @@ function vaultTestSuite(strategyTokenSymbol) {
                 let userBTokenBalanceBefore = await call(vault, 'balanceOf', [testUser])
                 let userBTokenAmountToWithdraw = new BigNumber(userBTokenBalanceBefore).divn(2)
                 let bTokenTotalSupply = await call(vault, 'totalSupply')
-                let vaultBalance = await call(vault, 'balance')
+                let vaultBalance = await call(vault, 'underlyingBalance')
                 // get expected value
                 let expectedTokenAmountToWithdrawWithoutFee = userBTokenAmountToWithdraw.mul(new BigNumber(vaultBalance)).div(new BigNumber(bTokenTotalSupply))
                 let expectedWithdrawalFee = expectedTokenAmountToWithdrawWithoutFee.muln(vaultWithdrawalManageFeePortion).divn(vaultWithdrawalManageFeeBase)
@@ -377,7 +377,7 @@ function vaultTestSuite(strategyTokenSymbol) {
                 let governanceBTokenBalance = await call(vault, 'balanceOf', [governance])
                 let userBTokenAmountToWithdraw = new BigNumber(governanceBTokenBalance)
                 let bTokenTotalSupply = await call(vault, 'totalSupply')
-                let vaultBalance = await call(vault, 'balance')
+                let vaultBalance = await call(vault, 'underlyingBalance')
                 // get expected value
                 let expectedTokenAmountToWithdrawWithoutFee = userBTokenAmountToWithdraw.mul(new BigNumber(vaultBalance)).div(new BigNumber(bTokenTotalSupply))
                 let expectedWithdrawalFee = expectedTokenAmountToWithdrawWithoutFee.muln(vaultWithdrawalManageFeePortion).divn(vaultWithdrawalManageFeeBase)
@@ -404,7 +404,7 @@ function vaultTestSuite(strategyTokenSymbol) {
                 // can not withdraw all money out because of earn loss from curve fee and harvest(reinvest) after 5 days can not cover that, or assertion will be inaccurate
                 let userBTokenAmountToWithdraw = new BigNumber(userBTokenBalanceBefore).divn(2)
                 let bTokenTotalSupply = await call(vault, 'totalSupply')
-                let vaultBalance = await call(vault, 'balance')
+                let vaultBalance = await call(vault, 'underlyingBalance')
                 // get expected value
                 let expectedTokenAmountToWithdrawWithoutFee = userBTokenAmountToWithdraw.mul(new BigNumber(vaultBalance)).div(new BigNumber(bTokenTotalSupply))
                 let expectedWithdrawalFee = expectedTokenAmountToWithdrawWithoutFee.muln(vaultWithdrawalManageFeePortion).divn(vaultWithdrawalManageFeeBase)
@@ -481,7 +481,7 @@ function vaultTestSuite(strategyTokenSymbol) {
                 // can not withdraw all money out because of earn loss from curve fee and harvest(reinvest) after 5 days can not cover that, or assertion will be inaccurate
                 let userBTokenAmountToWithdraw = new BigNumber(userBTokenBalanceBefore)
                 let bTokenTotalSupply = await call(vault, 'totalSupply')
-                let vaultBalance = await call(vault, 'balance')
+                let vaultBalance = await call(vault, 'underlyingBalance')
                 // get expected value
                 let expectedTokenAmountToWithdrawWithoutFee = userBTokenAmountToWithdraw.mul(new BigNumber(vaultBalance)).div(new BigNumber(bTokenTotalSupply))
                 let expectedWithdrawalFee = expectedTokenAmountToWithdrawWithoutFee.muln(vaultWithdrawalManageFeePortion).divn(vaultWithdrawalManageFeeBase)
@@ -661,9 +661,12 @@ function vaultTestSuite(strategyTokenSymbol) {
             })
 
             it('withdrawAll in happy path', async () => {
-                let vaultBalanceBefore = await call(vault, 'balance', [])
-                await send(controller, 'withdrawAll', [strategyTokenAddress], { from: governance })
-                let vaultBalanceAfter = await call(vault, 'balance', [])
+                let vaultBalanceBefore = await call(vault, 'underlyingBalance', [])
+                console.log(vaultBalanceBefore.toString())
+                let receipt = await send(controller, 'withdrawAll', [strategyTokenAddress], { from: governance })
+                console.log(receipt)
+                let vaultBalanceAfter = await call(vault, 'underlyingBalance', [])
+                console.log(vaultBalanceAfter.toString())
                 let vaultBufferBalance = await AccountUtils.balanceOfERC20Token(strategyTokenSymbol, vaultAddress)
                 AssertionUtils.assertBNApproxRange(vaultBufferBalance, vaultBalanceBefore, 5, 10000)
                 AssertionUtils.assertBNApproxRange(vaultBufferBalance, vaultBalanceAfter, 5, 10000)
