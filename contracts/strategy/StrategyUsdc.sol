@@ -247,6 +247,9 @@ contract StrategyUsdc is CrvLocker {
 
     function underlyingBalanceInPool() public view returns (uint256) {
         uint balance = ICrvDeposit(threePoolGauge).balanceOf(address(this));
+        if (balance == 0) {
+            return 0;
+        }
         uint balanceVirtual = balance.mul(ICrvPool(threePool).get_virtual_price()).div(1e18).div(TO_THREE_POOL_CRV_DECIMALS);
         uint balanceUnderlying = ICrvPool(threePool).calc_withdraw_one_coin(balance, tokenIndexThreePool);
         return Math.min(balanceVirtual, balanceUnderlying);
