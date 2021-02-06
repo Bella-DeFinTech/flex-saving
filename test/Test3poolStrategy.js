@@ -23,7 +23,9 @@ function strategyTestSuite(strategyTokenSymbol) {
         const poolTokenSymbol = '_3pool'
         const poolParam = curvePoolConstant[poolTokenSymbol].param
         const strategyTokenIndexInCurve3pool = poolParam.POOL_TOKEN.findIndex(strategyTokenSymbol)
-        const governance = accounts[0]
+        let governance
+        let strategyTokenRewardsAddress
+        let BELRewardsAddress
         let strategy
         let strategyAddress
         let strategyToken
@@ -31,6 +33,9 @@ function strategyTestSuite(strategyTokenSymbol) {
         let snapshotId
         beforeAll(async (done) => {
             let deployAddress = await deploy(saddle, accounts[0], accounts, [strategyTokens[strategyTokenSymbol].index])
+            governance = deployAddress.governance
+            strategyTokenRewardsAddress = deployAddress.strategyTokenRewardsAddress
+            BELRewardsAddress = deployAddress.BELRewardsAddress
             strategyAddress = deployAddress.strategy[strategyTokenSymbol]
             strategyTokenAddress = tokenAddress[strategyTokenSymbol].token
             strategy = await saddle.getContractAt(strategyTokens[strategyTokenSymbol].contractName, strategyAddress)
@@ -98,8 +103,6 @@ function strategyTestSuite(strategyTokenSymbol) {
             const BELRewardsDistributionPortion = 50
             const swapToBELRouting = [tokenAddress.CRV.token, tokenAddress.WETH.token, tokenAddress.BEL.token]
             const swapToStrategyTokenRouting = [tokenAddress.CRV.token, tokenAddress.WETH.token, tokenAddress[strategyTokenSymbol].token]
-            const strategyTokenRewardsAddress = accounts[1]
-            const BELRewardsAddress = accounts[1]
             let curve
             let strategyTokenAmountToDeposit = BNUtils.mul10pow(new BigNumber('10000'), tokenAddress[strategyTokenSymbol].decimals)
 

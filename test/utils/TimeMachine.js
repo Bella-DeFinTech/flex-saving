@@ -94,6 +94,16 @@ sendAndRollback = async (trx) => {
   return res
 }
 
+getTimeStampByTrxReceipt = async (receipt) => {
+  let trxBlock = await web3.eth.getBlock(receipt.blockNumber)
+  return trxBlock.timestamp
+}
+
+getLatestTimeStamp = async () => {
+  let trxBlock = await web3.eth.getBlock('latest')
+  return trxBlock.timestamp
+}
+
 module.exports = {
   advanceTime,
   advanceBlock,
@@ -101,5 +111,7 @@ module.exports = {
   advanceTimeAndBlock,
   takeSnapshot,
   revertToSnapshot,
-  sendAndRollback
+  sendAndRollback,
+  getTimeStampByTrxReceipt,
+  getLatestTimeStamp
 }

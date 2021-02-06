@@ -17,26 +17,31 @@ describe('Test BellaFlexsaving DAI Vault', vaultTestSuite('DAI'))
 
 function vaultTestSuite(strategyTokenSymbol) {
     return () => {
-        const governance = accounts[0]
         const poolTokenSymbol = '_3pool'
         const poolParam = curvePoolConstant[poolTokenSymbol].param
         const curve3poolAddress = poolParam.curvePoolAddress
         const curveGaugeAddress = poolParam.curveGaugeAddress
+        let governance
         let vault
         let vaultAddress
         let strategy
         let strategyAddress
         let strategyToken
         let strategyTokenAddress
+        let controller
+        let controllerAddress
         let snapshotId
         beforeAll(async (done) => {
             let deployAddress = await deploy(saddle, accounts[0], accounts, [strategyTokens[strategyTokenSymbol].index])
+            governance = deployAddress.governance
             vaultAddress = deployAddress.vault[strategyTokenSymbol]
             strategyAddress = deployAddress.strategy[strategyTokenSymbol]
             strategyTokenAddress = tokenAddress[strategyTokenSymbol].token
+            controllerAddress = deployAddress.controller
             vault = await saddle.getContractAt('bVault', vaultAddress)
             strategy = await saddle.getContractAt(strategyTokens[strategyTokenSymbol].contractName, strategyAddress)
             strategyToken = await saddle.getContractAt('IERC20', strategyTokenAddress)
+            controller = await saddle.getContractAt('Controller', controllerAddress)
             done()
         })
 
@@ -619,6 +624,68 @@ function vaultTestSuite(strategyTokenSymbol) {
                 let rebalanceTrx = send(vault, 'rebalance', [], { from: governance })
                 // assert throw error
                 await AssertionUtils.assertThrowErrorAsync(rebalanceTrx, 'subtraction overflow')
+            })
+        })
+
+        describe('Test controller withdrawAll', () => {
+            const day = 24 * 60 * 60
+            const curve3poolInstance = new web3.eth.Contract(curve3pool.abiArray, curve3poolAddress)
+            let testUser = accounts[2]
+            let userTokenAmountToDeposit = BNUtils.mul10pow(new BigNumber('10000'), tokenAddress[strategyTokenSymbol].decimals)
+
+            beforeAll(async (done) => {
+                let snapshot = await timeMachine.takeSnapshot()
+                snapshotId = snapshot['result']
+                console.log('snapshot #' + snapshotId + ' saved!')
+                done()
+            })
+
+            afterAll(async (done) => {
+                await timeMachine.revertToSnapshot(snapshotId)
+                console.log('reverted to snapshot #' + snapshotId)
+                done()
+            })
+
+            beforeEach(async (done) => {
+                // make governance deposit first to mint some bToken
+                await AccountUtils.giveERC20Token(strategyTokenSymbol, governance, userTokenAmountToDeposit)
+                await AccountUtils.doApprove(strategyTokenSymbol, governance, vaultAddress, userTokenAmountToDeposit)
+                await send(vault, 'deposit', [userTokenAmountToDeposit.toString()], { from: governance })
+                // prepare user Token balance(10000 USDT) for testUser and deposit to vault
+                await AccountUtils.giveERC20Token(strategyTokenSymbol, testUser, userTokenAmountToDeposit)
+                await AccountUtils.doApprove(strategyTokenSymbol, testUser, vaultAddress, userTokenAmountToDeposit)
+                await send(vault, 'deposit', [userTokenAmountToDeposit.toString()], { from: testUser })
+                // call earn to invest to curve pool
+                await send(vault, 'earn', [], { from: governance })
+                // prepare for bToken exchange rate
+                {
+                    // say 5 days passed and some exchange happened in curve 3pool
+                    await timeMachine.advanceTimeAndBlock(5 * day)
+                    // swap 60 * 5 million volume during 5 days
+                    await AccountUtils.giveERC20Token('USDT', governance, BNUtils.mul10pow(new BigNumber('25'), 6 + tokenAddress.USDT.decimals))
+                    await AccountUtils.giveERC20Token('USDC', governance, BNUtils.mul10pow(new BigNumber('25'), 6 + tokenAddress.USDC.decimals))
+                    await AccountUtils.giveERC20Token('DAI', governance, BNUtils.mul10pow(new BigNumber('25'), 6 + tokenAddress.DAI.decimals))
+                    await AccountUtils.doApprove('USDT', governance, curve3poolAddress, BNUtils.mul10pow(new BigNumber('20').muln(5), 7 + tokenAddress.USDT.decimals))
+                    await AccountUtils.doApprove('USDC', governance, curve3poolAddress, BNUtils.mul10pow(new BigNumber('20').muln(5), 7 + tokenAddress.USDC.decimals))
+                    await AccountUtils.doApprove('DAI', governance, curve3poolAddress, BNUtils.mul10pow(new BigNumber('20').muln(5), 7 + tokenAddress.DAI.decimals))
+                    for (let i = 0; i < 5; i++) {
+                        await curve3poolInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('DAI'), poolParam.POOL_TOKEN.findIndex('USDC'), BNUtils.mul10pow(new BigNumber('20'), 6 + tokenAddress.DAI.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                        await curve3poolInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('USDC'), poolParam.POOL_TOKEN.findIndex('USDT'), BNUtils.mul10pow(new BigNumber('20'), 6 + tokenAddress.USDC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                        await curve3poolInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('USDT'), poolParam.POOL_TOKEN.findIndex('DAI'), BNUtils.mul10pow(new BigNumber('20'), 6 + tokenAddress.USDT.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                    }
+                }
+                // do harvest
+                await send(strategy, 'harvest', [curveGaugeAddress], { from: governance })
+                done()
+            })
+
+            it('withdrawAll in happy path', async () => {
+                let vaultBalanceBefore = await call(vault, 'balance', [])
+                await send(controller, 'withdrawAll', [strategyTokenAddress], { from: governance })
+                let vaultBalanceAfter = await call(vault, 'balance', [])
+                let vaultBufferBalance = await AccountUtils.balanceOfERC20Token(strategyTokenSymbol, vaultAddress)
+                AssertionUtils.assertBNApproxRange(vaultBufferBalance, vaultBalanceBefore, 5, 10000)
+                AssertionUtils.assertBNApproxRange(vaultBufferBalance, vaultBalanceAfter, 5, 10000)
             })
         })
     }

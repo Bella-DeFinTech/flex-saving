@@ -5,6 +5,7 @@ const deploy = require("./lib/Deploy.js")
 const BigNumber = require('bn.js')
 const tokenAddress = require('./const/Token.js')
 const strategyTokens = require('./const/StrategyToken.js')
+const deployStaking = require("./lib/StakingDeploy.js");
 
 jest.setTimeout(30 * 60 * 1000)
 
@@ -55,7 +56,7 @@ function testSuite(strategyTokenSymbol) {
             done()
         })
 
-        test('simulate and calculate cost', async () => {
+        test('simulate and calculate FS cost', async () => {
             // deploy
             let deployAddress = await doTrxAndCalcETHUsed('deploy', async () => {
                 return await deploy(saddle, governance, accounts, [strategyTokens[strategyTokenSymbol].index])
@@ -71,7 +72,10 @@ function testSuite(strategyTokenSymbol) {
             // prepare user Token balance(10000 USDT) for testUser and deposit to vault
             await AccountUtils.giveERC20Token(strategyTokenSymbol, testUser, userTokenAmountToDeposit)
             await AccountUtils.doApprove(strategyTokenSymbol, testUser, vaultAddress, userTokenAmountToDeposit)
-            await send(vault, 'deposit', [userTokenAmountToDeposit.toString()], { from: testUser })
+            // withdraw
+            await doTrxAndCalcETHUsed('deposit', async () => {
+                await send(vault, 'deposit', [userTokenAmountToDeposit.toString()], { from: testUser })
+            }, testUser)
 
             // earn 
             await doTrxAndCalcETHUsed('earn', async () => {
@@ -84,8 +88,16 @@ function testSuite(strategyTokenSymbol) {
 
             // let testUser withdraw to make vault buffer balance insufficient
             let testUserBTokenBalance = await call(vault, 'balanceOf', [testUser])
-            let testUserBTokenAmountToWithdraw = new BigNumber(testUserBTokenBalance).muln(8).divn(10)
-            await send(vault, 'withdraw', [testUserBTokenAmountToWithdraw], { from: testUser })
+
+            let testUserBTokenAmountToWithdraw1 = new BigNumber(testUserBTokenBalance).muln(8).divn(100)
+            await doTrxAndCalcETHUsed('withdraw', async () => {
+                await send(vault, 'withdraw', [testUserBTokenAmountToWithdraw1], { from: testUser })
+            }, testUser)
+
+            let testUserBTokenAmountToWithdraw2 = new BigNumber(testUserBTokenBalance).muln(8).divn(10)
+            await doTrxAndCalcETHUsed('withdraw', async () => {
+                await send(vault, 'withdraw', [testUserBTokenAmountToWithdraw2], { from: testUser })
+            }, testUser)
 
             // rebalance
             await doTrxAndCalcETHUsed('rebalance', async () => {
@@ -94,6 +106,14 @@ function testSuite(strategyTokenSymbol) {
 
         })
 
+        test.only('simulate and calculate staking deploy cost', async () => {
+            // deploy
+            const deployer = accounts[4]
+
+            await doTrxAndCalcETHUsed('deploy 2 staking pool', async () => {
+                await deployStaking(saddle, deployer, governance)
+            }, deployer)
+        })
     }
 }
 

@@ -16,26 +16,31 @@ describe('Test BellaFlexsaving HBTC Vault', vaultTestSuite('HBTC'))
 
 function vaultTestSuite(strategyTokenSymbol) {
     return () => {
-        const governance = accounts[0]
         const poolTokenSymbol = 'hbtc'
         const poolParam = curvePoolConstant[poolTokenSymbol].param
         const curveHbtcPoolAddress = poolParam.curvePoolAddress
         const curveGaugeAddress = poolParam.curveGaugeAddress
+        let governance
         let vault
         let vaultAddress
         let strategy
         let strategyAddress
         let strategyToken
         let strategyTokenAddress
+        let controller
+        let controllerAddress
         let snapshotId
         beforeAll(async (done) => {
             let deployAddress = await deploy(saddle, accounts[0], accounts, [strategyTokens[strategyTokenSymbol].index])
+            governance = deployAddress.governance
             vaultAddress = deployAddress.vault[strategyTokenSymbol]
             strategyAddress = deployAddress.strategy[strategyTokenSymbol]
             strategyTokenAddress = tokenAddress[strategyTokenSymbol].token
+            controllerAddress = deployAddress.controller
             vault = await saddle.getContractAt('bVault', vaultAddress)
             strategy = await saddle.getContractAt(strategyTokens[strategyTokenSymbol].contractName, strategyAddress)
             strategyToken = await saddle.getContractAt('IERC20', strategyTokenAddress)
+            controller = await saddle.getContractAt('Controller', controllerAddress)
             done()
         })
 
@@ -79,8 +84,8 @@ function vaultTestSuite(strategyTokenSymbol) {
                     await AccountUtils.doApprove('HBTC', governance, curveHbtcPoolAddress, BNUtils.mul10pow(new BigNumber('44'), 1 + tokenAddress.HBTC.decimals))
                     await AccountUtils.doApprove('WBTC', governance, curveHbtcPoolAddress, BNUtils.mul10pow(new BigNumber('44'), 1 + tokenAddress.WBTC.decimals))
                     for (let i = 0; i < 5; i++) {
-                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('HBTC'), poolParam.POOL_TOKEN.findIndex('WBTC'), BNUtils.mul10pow(new BigNumber('44'),  tokenAddress.HBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
-                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('WBTC'), poolParam.POOL_TOKEN.findIndex('HBTC'), BNUtils.mul10pow(new BigNumber('44'),  tokenAddress.WBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('HBTC'), poolParam.POOL_TOKEN.findIndex('WBTC'), BNUtils.mul10pow(new BigNumber('44'), tokenAddress.HBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('WBTC'), poolParam.POOL_TOKEN.findIndex('HBTC'), BNUtils.mul10pow(new BigNumber('44'), tokenAddress.WBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
                     }
                 }
                 // prepare user Token balance(100 HBTC) for testUser
@@ -282,8 +287,8 @@ function vaultTestSuite(strategyTokenSymbol) {
                     await AccountUtils.doApprove('HBTC', governance, curveHbtcPoolAddress, BNUtils.mul10pow(new BigNumber('44'), 1 + tokenAddress.HBTC.decimals))
                     await AccountUtils.doApprove('WBTC', governance, curveHbtcPoolAddress, BNUtils.mul10pow(new BigNumber('44'), 1 + tokenAddress.WBTC.decimals))
                     for (let i = 0; i < 5; i++) {
-                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('HBTC'), poolParam.POOL_TOKEN.findIndex('WBTC'), BNUtils.mul10pow(new BigNumber('44'),  tokenAddress.HBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
-                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('WBTC'), poolParam.POOL_TOKEN.findIndex('HBTC'), BNUtils.mul10pow(new BigNumber('44'),  tokenAddress.WBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('HBTC'), poolParam.POOL_TOKEN.findIndex('WBTC'), BNUtils.mul10pow(new BigNumber('44'), tokenAddress.HBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('WBTC'), poolParam.POOL_TOKEN.findIndex('HBTC'), BNUtils.mul10pow(new BigNumber('44'), tokenAddress.WBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
                     }
                 }
                 // do harvest
@@ -362,8 +367,8 @@ function vaultTestSuite(strategyTokenSymbol) {
                     await AccountUtils.doApprove('HBTC', governance, curveHbtcPoolAddress, BNUtils.mul10pow(new BigNumber('44'), 1 + tokenAddress.HBTC.decimals))
                     await AccountUtils.doApprove('WBTC', governance, curveHbtcPoolAddress, BNUtils.mul10pow(new BigNumber('44'), 1 + tokenAddress.WBTC.decimals))
                     for (let i = 0; i < 5; i++) {
-                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('HBTC'), poolParam.POOL_TOKEN.findIndex('WBTC'), BNUtils.mul10pow(new BigNumber('44'),  tokenAddress.HBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
-                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('WBTC'), poolParam.POOL_TOKEN.findIndex('HBTC'), BNUtils.mul10pow(new BigNumber('44'),  tokenAddress.WBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('HBTC'), poolParam.POOL_TOKEN.findIndex('WBTC'), BNUtils.mul10pow(new BigNumber('44'), tokenAddress.HBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('WBTC'), poolParam.POOL_TOKEN.findIndex('HBTC'), BNUtils.mul10pow(new BigNumber('44'), tokenAddress.WBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
                     }
                 }
                 // do harvest
@@ -454,8 +459,8 @@ function vaultTestSuite(strategyTokenSymbol) {
                     await AccountUtils.doApprove('HBTC', governance, curveHbtcPoolAddress, BNUtils.mul10pow(new BigNumber('44'), 1 + tokenAddress.HBTC.decimals))
                     await AccountUtils.doApprove('WBTC', governance, curveHbtcPoolAddress, BNUtils.mul10pow(new BigNumber('44'), 1 + tokenAddress.WBTC.decimals))
                     for (let i = 0; i < 5; i++) {
-                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('HBTC'), poolParam.POOL_TOKEN.findIndex('WBTC'), BNUtils.mul10pow(new BigNumber('44'),  tokenAddress.HBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
-                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('WBTC'), poolParam.POOL_TOKEN.findIndex('HBTC'), BNUtils.mul10pow(new BigNumber('44'),  tokenAddress.WBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('HBTC'), poolParam.POOL_TOKEN.findIndex('WBTC'), BNUtils.mul10pow(new BigNumber('44'), tokenAddress.HBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                        await curveHbtcInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('WBTC'), poolParam.POOL_TOKEN.findIndex('HBTC'), BNUtils.mul10pow(new BigNumber('44'), tokenAddress.WBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
                     }
                 }
                 // do harvest
@@ -528,8 +533,8 @@ function vaultTestSuite(strategyTokenSymbol) {
                     await AccountUtils.doApprove('HBTC', governance, curveHbtcPoolAddress, BNUtils.mul10pow(new BigNumber('44'), 1 + tokenAddress.HBTC.decimals))
                     await AccountUtils.doApprove('WBTC', governance, curveHbtcPoolAddress, BNUtils.mul10pow(new BigNumber('44'), 1 + tokenAddress.WBTC.decimals))
                     for (let i = 0; i < 5; i++) {
-                        await curveHbtcPoolInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('HBTC'), poolParam.POOL_TOKEN.findIndex('WBTC'), BNUtils.mul10pow(new BigNumber('44'),  tokenAddress.HBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
-                        await curveHbtcPoolInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('WBTC'), poolParam.POOL_TOKEN.findIndex('HBTC'), BNUtils.mul10pow(new BigNumber('44'),  tokenAddress.WBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                        await curveHbtcPoolInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('HBTC'), poolParam.POOL_TOKEN.findIndex('WBTC'), BNUtils.mul10pow(new BigNumber('44'), tokenAddress.HBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                        await curveHbtcPoolInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('WBTC'), poolParam.POOL_TOKEN.findIndex('HBTC'), BNUtils.mul10pow(new BigNumber('44'), tokenAddress.WBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
                     }
                 }
                 // do harvest
@@ -603,6 +608,65 @@ function vaultTestSuite(strategyTokenSymbol) {
                 let rebalanceTrx = send(vault, 'rebalance', [], { from: governance })
                 // assert throw error
                 await AssertionUtils.assertThrowErrorAsync(rebalanceTrx, 'subtraction overflow')
+            })
+        })
+
+        describe('Test controller withdrawAll', () => {
+            const day = 24 * 60 * 60
+            const curveHbtcPoolInstance = new web3.eth.Contract(curveHbtcPool.abiArray, curveHbtcPoolAddress)
+            let testUser = accounts[2]
+            let userTokenAmountToDeposit = BNUtils.mul10pow(new BigNumber('100'), tokenAddress[strategyTokenSymbol].decimals)
+
+            beforeAll(async (done) => {
+                let snapshot = await timeMachine.takeSnapshot()
+                snapshotId = snapshot['result']
+                console.log('snapshot #' + snapshotId + ' saved!')
+                done()
+            })
+
+            afterAll(async (done) => {
+                await timeMachine.revertToSnapshot(snapshotId)
+                console.log('reverted to snapshot #' + snapshotId)
+                done()
+            })
+
+            beforeEach(async (done) => {
+                // make governance deposit first to mint some bToken
+                await AccountUtils.giveERC20Token(strategyTokenSymbol, governance, userTokenAmountToDeposit)
+                await AccountUtils.doApprove(strategyTokenSymbol, governance, vaultAddress, userTokenAmountToDeposit)
+                await send(vault, 'deposit', [userTokenAmountToDeposit.toString()], { from: governance })
+                // prepare user Token balance(10000 USDT) for testUser and deposit to vault
+                await AccountUtils.giveERC20Token(strategyTokenSymbol, testUser, userTokenAmountToDeposit)
+                await AccountUtils.doApprove(strategyTokenSymbol, testUser, vaultAddress, userTokenAmountToDeposit)
+                await send(vault, 'deposit', [userTokenAmountToDeposit.toString()], { from: testUser })
+                // call earn to invest to curve pool
+                await send(vault, 'earn', [], { from: governance })
+                // prepare for bToken exchange rate
+                {
+                    // say 5 days passed and some exchange happened in curve hbtcPool
+                    await timeMachine.advanceTimeAndBlock(5 * day)
+                    // swap 88 * 5 btc volume during 5 days
+                    await AccountUtils.giveERC20Token('HBTC', governance, BNUtils.mul10pow(new BigNumber('50'), tokenAddress.HBTC.decimals))
+                    await AccountUtils.giveERC20Token('WBTC', governance, BNUtils.mul10pow(new BigNumber('50'), tokenAddress.WBTC.decimals))
+                    await AccountUtils.doApprove('HBTC', governance, curveHbtcPoolAddress, BNUtils.mul10pow(new BigNumber('44'), 1 + tokenAddress.HBTC.decimals))
+                    await AccountUtils.doApprove('WBTC', governance, curveHbtcPoolAddress, BNUtils.mul10pow(new BigNumber('44'), 1 + tokenAddress.WBTC.decimals))
+                    for (let i = 0; i < 5; i++) {
+                        await curveHbtcPoolInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('HBTC'), poolParam.POOL_TOKEN.findIndex('WBTC'), BNUtils.mul10pow(new BigNumber('44'), tokenAddress.HBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                        await curveHbtcPoolInstance.methods.exchange(poolParam.POOL_TOKEN.findIndex('WBTC'), poolParam.POOL_TOKEN.findIndex('HBTC'), BNUtils.mul10pow(new BigNumber('44'), tokenAddress.WBTC.decimals).toString(), 0).send({ from: governance, gas: 500000 })
+                    }
+                }
+                // do harvest
+                await send(strategy, 'harvest', [curveGaugeAddress], { from: governance })
+                done()
+            })
+
+            it('withdrawAll in happy path', async () => {
+                let vaultBalanceBefore = await call(vault, 'balance', [])
+                await send(controller, 'withdrawAll', [strategyTokenAddress], { from: governance })
+                let vaultBalanceAfter = await call(vault, 'balance', [])
+                let vaultBufferBalance = await AccountUtils.balanceOfERC20Token(strategyTokenSymbol, vaultAddress)
+                AssertionUtils.assertBNApproxRange(vaultBufferBalance, vaultBalanceBefore, 5, 10000)
+                AssertionUtils.assertBNApproxRange(vaultBufferBalance, vaultBalanceAfter, 5, 10000)
             })
         })
     }

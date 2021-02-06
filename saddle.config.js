@@ -13,7 +13,7 @@ module.exports = {
   coverage_dir: "coverage",                             // Directory to place coverage files
   coverage_ignore: [],                                  // List of files to ignore for coverage
   contracts: process.env['SADDLE_CONTRACTS'] || 'contracts/**/*.sol',                         // Glob to match contract files
-  tests: ['**/test/TestArpaVault.js'],                             // Glob to match test files
+  tests: ['**/test/TestGasCost.js'],                             // Glob to match test files
   trace: false,                                         // Compile with debug artifacts
   networks: {                                           // Define configuration for each network
     development: {
@@ -53,11 +53,11 @@ module.exports = {
         ],
         gas_price: [
           { env: "GAS_PRICE" },
-          { default: "20000000000" }
+          { default: "100000000000" }
         ],
         options: {
-          transactionConfirmationBlocks: 1,
-          transactionBlockTimeout: 5
+          transactionConfirmationBlocks: 6,
+          transactionBlockTimeout: 50
         }
       },
       // accounts: [
