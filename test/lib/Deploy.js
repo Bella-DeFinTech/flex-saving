@@ -11,10 +11,10 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
   const web3 = saddle.web3
   let deployerTrxNonce = await web3.eth.getTransactionCount(deployer, 'latest')
   // -----------------------PRODUCTION PARAMTERS --------------------------------
-  const governanceAddress = accounts[5]
-  const firemanAddress = accounts[6]
-  const strategyTokenRewardsAddress = accounts[7]
-  const BELRewardsAddress = accounts[8]
+  const governanceAddress = '0x0fFE3AB40D89C2CCf9881A28465ab7Fe332fcA9a'
+  const firemanAddress = '0xDD1Ce2d72b2FdCCB2D10D3D04D5ca2Ba81E39aD3'
+  const strategyTokenRewardsAddress = '0x78172CaabC374C4520aF613467E82fc9e1dC4Ba9'
+  const BELRewardsAddress = '0xcA7aE36A38eA4dE50DFEeCF6A4c44fC074811a6c'
 
   const deployAddress = {
     controller: '',
@@ -251,21 +251,21 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
     .then(() => {
       return addVault(controllerInstance, whitelistInstance, 'StrategyUsdc', strategyTokens.USDC)
     })
-    .then(() => {
-      return addVault(controllerInstance, whitelistInstance, 'StrategyWbtc', strategyTokens.WBTC)
-    })
+    // .then(() => {
+    //   return addVault(controllerInstance, whitelistInstance, 'StrategyWbtc', strategyTokens.WBTC)
+    // })
     .then(() => {
       return addVault(controllerInstance, whitelistInstance, 'StrategyArpa', strategyTokens.ARPA)
     })
-    .then(() => {
-      return addVault(controllerInstance, whitelistInstance, 'StrategyDai', strategyTokens.DAI)
-    })
-    .then(() => {
-      return addVault(controllerInstance, whitelistInstance, 'StrategyBusd', strategyTokens.BUSD)
-    })
-    .then(() => {
-      return addVault(controllerInstance, whitelistInstance, 'StrategyHbtc', strategyTokens.HBTC)
-    })
+    // .then(() => {
+    //   return addVault(controllerInstance, whitelistInstance, 'StrategyDai', strategyTokens.DAI)
+    // })
+    // .then(() => {
+    //   return addVault(controllerInstance, whitelistInstance, 'StrategyBusd', strategyTokens.BUSD)
+    // })
+    // .then(() => {
+    //   return addVault(controllerInstance, whitelistInstance, 'StrategyHbtc', strategyTokens.HBTC)
+    // })
     .then(() => {
       return send(controllerInstance, 'setGovernance', [governanceAddress], { from: deployer, nonce: deployerTrxNonce })
     })
