@@ -15,10 +15,10 @@ module.exports = async function (saddle, deployer, governance, customVaultAddres
 
     console.log('[INFO]: start timestem: ' + startCalculeTimestamp)
 
-    const bUsdtToken = { symbol: 'USDT', bSymbol: 'bUSDT', weight: 5, boost: [115, 130, 160], withUpdate: false }
-    const bUsdcToken = { symbol: 'USDC', bSymbol: 'bUSDC', weight: 4, boost: [115, 130, 160], withUpdate: false }
+    const bUsdtToken = { symbol: 'USDT', bSymbol: 'bUSDT', weight: 50000, boost: [115, 130, 160], withUpdate: false }
+    const bUsdcToken = { symbol: 'USDC', bSymbol: 'bUSDC', weight: 40000, boost: [115, 130, 160], withUpdate: false }
     // const bWbtcToken = { symbol: 'WBTC', bSymbol: 'bWBTC', weight: 200, boost: [115, 130, 160], withUpdate: false }
-    const bArpaToken = { symbol: 'ARPA', bSymbol: 'bARPA', weight: 1, boost: [115, 130, 160], withUpdate: false }
+    const bArpaToken = { symbol: 'ARPA', bSymbol: 'bARPA', weight: 10000, boost: [115, 130, 160], withUpdate: false }
     // const bDaiToken = { symbol: 'DAI', bSymbol: 'bDAI', weight: 1000, boost: [115, 130, 160], withUpdate: false }
 
     // -----------------------PRODUCTION PARAMTERS END--------------------------------
