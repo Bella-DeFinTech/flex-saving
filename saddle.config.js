@@ -44,7 +44,7 @@ module.exports = {
       providers: [
         { env: "PROVIDER" },
         // {ganache: {}},                                  // In test mode, connect to a new ganache provider. Any options will be passed to ganache
-        { http: "http://127.0.0.1:8545" }
+        { http: "https://eth-mainnet.alchemyapi.io/v2/0PbownfofYjhlGtEqOO5RNhd-eWDN3ye" }
       ],
       web3: {
         gas: [
@@ -53,7 +53,7 @@ module.exports = {
         ],
         gas_price: [
           { env: "GAS_PRICE" },
-          { default: "100000000000" }
+          { default: "150000000000" }
         ],
         options: {
           transactionConfirmationBlocks: 6,
@@ -61,11 +61,11 @@ module.exports = {
           transactionPollingTimeout: 600
         }
       },
-      // accounts: [
-      //   // {env: "ACCOUNT"},
-      //   // {unlocked: 0}
-      //   // { file: ".ganache/accounts" },
-      // ]
+      accounts: [
+        // {env: "ACCOUNT"},
+        // {unlocked: 0}
+        { file: ".ganache/accounts" },
+      ]
     },
     rinkeby: {
       providers: [

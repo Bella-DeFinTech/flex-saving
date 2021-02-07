@@ -14,12 +14,15 @@ const testVaultAddressObj = {
 }
 
 describe('Test BellaStaking Deploy', () => {
-    const deployerAddress = '0x10f919f874dB00239a1f891d96279Ff999514B82'
+    const [
+        deployer
+    ] = saddle.wallet_accounts
+    // const deployerAddress = '0x10f919f874dB00239a1f891d96279Ff999514B82'
     const governaceAddress = '0x0fFE3AB40D89C2CCf9881A28465ab7Fe332fcA9a'
 
     it('can deploy staking pool and add pools', async () => {
         // 2021-02-08 20:00:00
-        await deploy(saddle, deployerAddress, governaceAddress, testVaultAddressObj, 1612785600)
+        await deploy(saddle, deployer, governaceAddress, testVaultAddressObj, 1612785600)
         console.log("deployed success!");
     });
 
