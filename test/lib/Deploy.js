@@ -11,10 +11,10 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
   const web3 = saddle.web3
   let deployerTrxNonce = await web3.eth.getTransactionCount(deployer, 'latest')
   // -----------------------PRODUCTION PARAMTERS --------------------------------
-  const governanceAddress = '0x10f919f874dB00239a1f891d96279Ff999514B82'
-  const firemanAddress = '0x10f919f874dB00239a1f891d96279Ff999514B82'
-  const strategyTokenRewardsAddress = '0x10f919f874dB00239a1f891d96279Ff999514B82'
-  const BELRewardsAddress = '0x10f919f874dB00239a1f891d96279Ff999514B82'
+  const governanceAddress = '0x0fFE3AB40D89C2CCf9881A28465ab7Fe332fcA9a'
+  const firemanAddress = '0xDD1Ce2d72b2FdCCB2D10D3D04D5ca2Ba81E39aD3'
+  const strategyTokenRewardsAddress = '0x78172CaabC374C4520aF613467E82fc9e1dC4Ba9'
+  const BELRewardsAddress = '0xcA7aE36A38eA4dE50DFEeCF6A4c44fC074811a6c'
 
   const deployAddress = {
     controller: '',

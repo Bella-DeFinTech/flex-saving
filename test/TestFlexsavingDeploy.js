@@ -9,7 +9,7 @@ describe('Test BellaFlexsaving Deploy', () => {
     ] = saddle.wallet_accounts
 
     it('can deploy all token vault and strategy', async () => {
-        await deploy(saddle, deployer, accounts)
+        await deploy(saddle, deployer, accounts, [], 1612785600)
         console.log("deployed success!");
     });
 

@@ -83,7 +83,8 @@ contract StrategyHbtc is CrvLocker {
 
         // wBTC/hBTC -> hBTC Pool
         // IERC20(want).safeApprove(hBTCPool, 0); HTBC can not approve 0!!!
-        IERC20(want).safeApprove(hBTCPool, uint(-1));
+        // *comment this when testing deploy
+        // IERC20(want).safeApprove(hBTCPool, uint(-1));
 
         // hCrv -> hBTC gauge
         IERC20(hCrv).safeApprove(hBTCGauge, 0);
