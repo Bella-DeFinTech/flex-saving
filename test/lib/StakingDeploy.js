@@ -5,10 +5,10 @@ const console = require('console');
 module.exports = async function (saddle, deployer, governance, customVaultAddressObj = {}, customTimestamp = '') {
     const deploy = saddle.deploy
     const send = saddle.send
-
+    let deployerTrxNonce = await web3.eth.getTransactionCount(deployer, 'latest')
     // -----------------------PRODUCTION PARAMTERS --------------------------------
     // Configuration
-    const deployerAddress  = deployer
+    const deployerAddress = deployer
     const governanceAddress = governance
 
     const startCalculeTimestamp = customTimestamp === '' ? 1606132800 : customTimestamp // 2020/11/23 20:00
@@ -53,7 +53,7 @@ module.exports = async function (saddle, deployer, governance, customVaultAddres
                 return false;
             }
         }
-    
+
         return JSON.stringify(obj) === JSON.stringify({});
     }
 
@@ -99,8 +99,9 @@ module.exports = async function (saddle, deployer, governance, customVaultAddres
         let bTokenAddress = getBtokenAddress(token)
 
         if (getBtokenAddress(token) !== '') {
-            return send(stakingContractInstance, 'add', [token.weight, bTokenAddress, token.boost, token.withUpdate], { from: deployerAddress })
+            return send(stakingContractInstance, 'add', [token.weight, bTokenAddress, token.boost, token.withUpdate], { from: deployerAddress, nonce: deployerTrxNonce })
                 .then(() => {
+                    deployerTrxNonce++
                     console.log('[INFO]: StakingContract add() func call: ')
 
                     addNewContent('[' + token.bSymbol + ' STAKING]'
@@ -133,8 +134,9 @@ module.exports = async function (saddle, deployer, governance, customVaultAddres
     addNewContent('[MIGRATE] governanceAddress: ' + governanceAddress)
     changeLine()
 
-    return deploy('BellaStaking', [bellaTokenAddress, startCalculeTimestamp, deployerAddress], { from: deployer }).then(
+    return deploy('BellaStaking', [bellaTokenAddress, startCalculeTimestamp, deployerAddress], { from: deployer, nonce: deployerTrxNonce }).then(
         (_bellaStakingInstance) => {
+            deployerTrxNonce++
             bellaStakingInstance = _bellaStakingInstance
 
             addNewContent('[STAKING] BellaStaking contract address: \n    ' + bellaStakingInstance._address)
@@ -142,20 +144,21 @@ module.exports = async function (saddle, deployer, governance, customVaultAddres
             return addStakingToken(bellaStakingInstance, bUsdtToken, deployerAddress)
         }).then(() => {
 
-        //     return addStakingToken(bellaStakingInstance, bUsdcToken, deployerAddress)
-        // }).then(() => {
+            //     return addStakingToken(bellaStakingInstance, bUsdcToken, deployerAddress)
+            // }).then(() => {
 
             return addStakingToken(bellaStakingInstance, bWbtcToken, deployerAddress)
         }).then(() => {
-            
-        //    return addStakingToken(bellaStakingInstance, bArpaToken, deployerAddress)
-        //}).then(() => {
 
-        //     return addStakingToken(bellaStakingInstance, bDaiToken, deployerAddress)
-        // }).then(() => {
+            //    return addStakingToken(bellaStakingInstance, bArpaToken, deployerAddress)
+            //}).then(() => {
 
-            return send(bellaStakingInstance, 'transferOwnership', [governanceAddress], { from: deployerAddress })
+            //     return addStakingToken(bellaStakingInstance, bDaiToken, deployerAddress)
+            // }).then(() => {
+
+            return send(bellaStakingInstance, 'transferOwnership', [governanceAddress], { from: deployerAddress, nonce: deployerTrxNonce })
         }).then(() => {
+            deployerTrxNonce++
             addNewContent('')
             addNewContent('[STAKING] Change governance address:'
                 + '\n    from: ' + deployerAddress
