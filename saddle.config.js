@@ -13,7 +13,7 @@ module.exports = {
   coverage_dir: "coverage",                             // Directory to place coverage files
   coverage_ignore: [],                                  // List of files to ignore for coverage
   contracts: process.env['SADDLE_CONTRACTS'] || 'contracts/**/*.sol',                         // Glob to match contract files
-  tests: ['**/test/TestFlexsavingDeploy.js'],                             // Glob to match test files
+  tests: ['**/test/TestFlexsavingAppendDeploy.js'],                             // Glob to match test files
   trace: false,                                         // Compile with debug artifacts
   networks: {                                           // Define configuration for each network
     development: {
@@ -44,6 +44,7 @@ module.exports = {
       providers: [
         { env: "PROVIDER" },
         // {ganache: {}},                                  // In test mode, connect to a new ganache provider. Any options will be passed to ganache
+        // { http: "http://127.0.0.1:8545" } 
         { http: "https://ropsten.infura.io/v3/8c520ce60421441aa5b64bf23837a074" }
       ],
       web3: {
