@@ -53,7 +53,7 @@ module.exports = {
         ],
         gas_price: [
           { env: "GAS_PRICE" },
-          { default: "180000000000" }
+          { default: "120000000000" }
         ],
         options: {
           transactionConfirmationBlocks: 6,
