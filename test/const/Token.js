@@ -55,16 +55,36 @@ const address = {
         tokenHolder: '0xbe0eb53f46cd790cd13851d5eff43d12404d33e8',
         decimals: 18
     },
-    hCRV:{
+    hCRV: {
         token: '0xb19059ebb43466C323583928285a49f558E572Fd',
         tokenHolder: '',
         decimals: 18
     },
-    yBUSD_CRV:{
+    yBUSD_CRV: {
         token: '0x3B3Ac5386837Dc563660FB6a0937DFAa5924333B',
         tokenHolder: '',
         decimals: 18
-    }
+    },
+    yDAI: {
+        token: '0xC2cB1040220768554cf699b0d863A3cd4324ce32',
+        tokenHolder: '',
+        decimals: 18
+    },
+    yUSDC: {
+        token: '0x26EA744E5B887E5205727f55dFBE8685e3b21951',
+        tokenHolder: '',
+        decimals: 6
+    },
+    yUSDT: {
+        token: '0xE6354ed5bC4b393a5Aad09f21c46E101e692d447',
+        tokenHolder: '',
+        decimals: 6
+    },
+    yBUSD: {
+        token: '0x04bC0Ab673d88aE9dbC9DA2380cB6B79C4BCa9aE',
+        tokenHolder: '',
+        decimals: 18
+    },
 
 }
 

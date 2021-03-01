@@ -3,8 +3,7 @@ const BNUtils = require("../utils/BNUtils.js");
 const curvePoolConstant = require('../const/CurvePool.js');
 
 /**
- * Curve 3Pool Emulator
- * Indices: 0-DAI 1-USDC 2-USDT
+ * Curve base Pool Emulator
  * @param {String} curvePoolSymbol - curve pool name like '_3pool'
  * @param {BigNumber} A - amplification coefficient
  * @param {BigNumber[]} balances - available token amount in pool
@@ -32,7 +31,11 @@ function CurvePool(curvePoolSymbol, A, balances, admin_balances, total_supply) {
 }
 //------------------------------------------internal----------------------------------------------
 CurvePool.prototype.xp = function () {
-    return this.balances.map((value, index) => value.mul(this.CURRENCY_RATES[index]).div(this.PRECISION))
+    return this._xp(this.CURRENCY_RATES)
+}
+
+CurvePool.prototype._xp = function (rates) {
+    return this.balances.map((value, index) => value.mul(rates[index]).div(this.PRECISION))
 }
 
 CurvePool.prototype.xp_mem = function (_balances) {
@@ -71,8 +74,12 @@ CurvePool.prototype.D = function (xp) {
 // x_1**2 + b*x_1 = c
 // x_1 = (x_1**2 + c) / (2*x_1 + b)
 CurvePool.prototype.y = function (i, j, x) {
-    let D = this.D(this.xp())
-    let xx = this.xp()
+    return this._y(i, j, x, this.xp())
+}
+
+CurvePool.prototype._y = function (i, j, x, xp) {
+    let D = this.D(xp)
+    let xx = xp
     xx[i] = x  // x is quantity of underlying asset brought to 1e18 precision
     // xx = [xx[k] for k in range(this.n) if k != j]
     xx = xx.filter((_, index) => index != j)

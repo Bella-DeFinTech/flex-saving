@@ -55,11 +55,17 @@ async function doApprove(tokenSymbol, holderAddress, spenderAddress, amountInWei
   await send(tokenInstance, 'approve', [spenderAddress, amountInWei.toString()], { from: holderAddress })
 }
 
+async function doContractApprove(tokenSymbol, holderContractAddress, spenderAddress, amountInWei) {
+  await give10ETH(holderContractAddress)
+  await doApprove(tokenSymbol, holderContractAddress, spenderAddress, amountInWei)
+}
+
 module.exports = {
   unlockAccount,
   give10ETH,
   giveERC20Token,
   balanceOfETH,
   balanceOfERC20Token,
-  doApprove
+  doApprove,
+  doContractApprove
 };
