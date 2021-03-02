@@ -28,15 +28,25 @@ async function give10ETH(toAddress) {
   })
 }
 
+async function unlockAndGiveETHToContract(toAddress, amountInETH, gas) {
+  this.unlockAccount(toAddress).catch((err) => {
+    // looks like it is an account known to the personal namespace or one of accounts returned by eth_accounts, ignore it
+  })
+  await web3.eth.sendTransaction({
+    from: ADMIN,
+    to: toAddress,
+    value: web3.utils.toWei(amountInETH),
+    gas: gas
+  })
+}
+
 async function giveERC20Token(tokenSymbol, toAddress, amountInWei) {
   let tokenInstance = await saddle.getContractAt('IERC20', tokenAddress[tokenSymbol].token)
   this.unlockAccount(toAddress).catch((err) => {
     // looks like it is an account known to the personal namespace or one of accounts returned by eth_accounts, ignore it
   })
-  this.unlockAccount(tokenAddress[tokenSymbol].tokenHolder).catch((err) => {
-    // looks like it is an account known to the personal namespace or one of accounts returned by eth_accounts, ignore it
-  })
-  await this.give10ETH(tokenAddress[tokenSymbol].tokenHolder)
+  // we assume holder is a contract, which is also applicable to externally owned account
+  await this.unlockAndGiveETHToContract(tokenAddress[tokenSymbol].tokenHolder, 1, 230000)
   console.log(tokenSymbol + ' balance: ' + await this.balanceOfERC20Token(tokenSymbol, tokenAddress[tokenSymbol].tokenHolder))
   await send(tokenInstance, 'transfer', [toAddress, new BigNumber(amountInWei).toString()], { from: tokenAddress[tokenSymbol].tokenHolder })
 }
@@ -63,6 +73,7 @@ async function doContractApprove(tokenSymbol, holderContractAddress, spenderAddr
 module.exports = {
   unlockAccount,
   give10ETH,
+  unlockAndGiveETHToContract,
   giveERC20Token,
   balanceOfETH,
   balanceOfERC20Token,

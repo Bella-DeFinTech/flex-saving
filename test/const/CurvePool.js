@@ -163,85 +163,85 @@ function getCurrencyRatesFetcher(curvePoolSymbol) {
 
 function ContractStatus(curvePoolSymbol, blockNumber) {
     this.curvePoolInstance = poolParam[curvePoolSymbol].curvePoolInstance(),
-        this.curvePoolCrvInstance = poolParam[curvePoolSymbol].curvePoolCrvInstance(),
-        this.A = async () => {
-            let A = await this.curvePoolInstance.methods.A().call({}, blockNumber)
-            return new BigNumber(A)
-        },
-        this.balances = async () => {
-            let balanceArr = new Array(poolParam[curvePoolSymbol].CURRENCY_NUMBER().toNumber()).fill(new BigNumber(0))
-            for (let i = 0; i < poolParam[curvePoolSymbol].CURRENCY_NUMBER().toNumber(); i++) {
-                balanceArr[i] = new BigNumber(await this.curvePoolInstance.methods.balances(i).call({}, blockNumber))
-            }
-            return balanceArr
-        },
-        this.admin_balances = async () => {
-            let adminFeeArr = new Array(poolParam[curvePoolSymbol].CURRENCY_NUMBER().toNumber()).fill(new BigNumber(0))
-            for (let i = 0; i < poolParam[curvePoolSymbol].CURRENCY_NUMBER().toNumber(); i++) {
-                adminFeeArr[i] = new BigNumber(await this.curvePoolInstance.methods.admin_balances(i).call({}, blockNumber))
-            }
-            return adminFeeArr
-        },
-        this.tokens = async () => {
-            let totalSupply = await this.curvePoolCrvInstance.methods.totalSupply().call({}, blockNumber)
-            return new BigNumber(totalSupply)
+    this.curvePoolCrvInstance = poolParam[curvePoolSymbol].curvePoolCrvInstance(),
+    this.A = async () => {
+        let A = await this.curvePoolInstance.methods.A().call({}, blockNumber)
+        return new BigNumber(A)
+    },
+    this.balances = async () => {
+        let balanceArr = new Array(poolParam[curvePoolSymbol].CURRENCY_NUMBER().toNumber()).fill(new BigNumber(0))
+        for (let i = 0; i < poolParam[curvePoolSymbol].CURRENCY_NUMBER().toNumber(); i++) {
+            balanceArr[i] = new BigNumber(await this.curvePoolInstance.methods.balances(i).call({}, blockNumber))
         }
+        return balanceArr
+    },
+    this.admin_balances = async () => {
+        let adminFeeArr = new Array(poolParam[curvePoolSymbol].CURRENCY_NUMBER().toNumber()).fill(new BigNumber(0))
+        for (let i = 0; i < poolParam[curvePoolSymbol].CURRENCY_NUMBER().toNumber(); i++) {
+            adminFeeArr[i] = new BigNumber(await this.curvePoolInstance.methods.admin_balances(i).call({}, blockNumber))
+        }
+        return adminFeeArr
+    },
+    this.tokens = async () => {
+        let totalSupply = await this.curvePoolCrvInstance.methods.totalSupply().call({}, blockNumber)
+        return new BigNumber(totalSupply)
+    }
 }
 
 function ContractView(curvePoolSymbol, blockNumber) {
     this.curvePoolInstance = poolParam[curvePoolSymbol].curvePoolInstance(),
-        this.curvePoolCrvInstance = poolParam[curvePoolSymbol].curvePoolCrvInstance(),
-        this.dy = async (inIndex, outIndex, dx) => {
-            let dy = await this.curvePoolInstance.methods.get_dy(inIndex, outIndex, dx).call({}, blockNumber)
-            return new BigNumber(dy)
-        },
-        this.totalSupply = async () => {
-            let totalSupply = await this.curvePoolCrvInstance.methods.totalSupply().call({}, blockNumber)
-            return new BigNumber(totalSupply)
-        },
-        this.virtualPrice = async () => {
-            let virtualPrice = await this.curvePoolInstance.methods.get_virtual_price().call({}, blockNumber)
-            return new BigNumber(virtualPrice)
-        },
-        this.calcWithdrawOneCoin = async (poolTokenAmount, outIndex) => {
-            let tokenAmount = await this.curvePoolInstance.methods.calc_withdraw_one_coin(poolTokenAmount, outIndex).call({}, blockNumber)
-            return new BigNumber(tokenAmount)
-        },
-        this.calcTokenAmount = async (tokenAmounts, isDeposit) => {
-            let poolTokenAmount = await this.curvePoolInstance.methods.calc_token_amount(tokenAmounts.map((value) => value.toString()), isDeposit).call({}, blockNumber)
-            return new BigNumber(poolTokenAmount)
-        }
+    this.curvePoolCrvInstance = poolParam[curvePoolSymbol].curvePoolCrvInstance(),
+    this.dy = async (inIndex, outIndex, dx) => {
+        let dy = await this.curvePoolInstance.methods.get_dy(inIndex, outIndex, dx).call({}, blockNumber)
+        return new BigNumber(dy)
+    },
+    this.totalSupply = async () => {
+        let totalSupply = await this.curvePoolCrvInstance.methods.totalSupply().call({}, blockNumber)
+        return new BigNumber(totalSupply)
+    },
+    this.virtualPrice = async () => {
+        let virtualPrice = await this.curvePoolInstance.methods.get_virtual_price().call({}, blockNumber)
+        return new BigNumber(virtualPrice)
+    },
+    this.calcWithdrawOneCoin = async (poolTokenAmount, outIndex) => {
+        let tokenAmount = await this.curvePoolInstance.methods.calc_withdraw_one_coin(poolTokenAmount, outIndex).call({}, blockNumber)
+        return new BigNumber(tokenAmount)
+    },
+    this.calcTokenAmount = async (tokenAmounts, isDeposit) => {
+        let poolTokenAmount = await this.curvePoolInstance.methods.calc_token_amount(tokenAmounts.map((value) => value.toString()), isDeposit).call({}, blockNumber)
+        return new BigNumber(poolTokenAmount)
+    }
 }
 
 function ContractTrx(curvePoolSymbol) {
     // note that we can hardly run trx at specific block number like call function, so we need to set fork param to status we want to test before run test suites
     this.sender = accounts[0],
-        this.poolParam = poolParam[curvePoolSymbol],
-        this.curvePoolInstance = this.poolParam.curvePoolInstance(),
-        this.exchange = async (inIndex, outIndex, inAmount) => {
-            return await timeMachine.sendAndRollback(async () => {
-                await AccountUtils.giveERC20Token(this.poolParam.POOL_TOKEN[inIndex], this.sender, inAmount)
-                await AccountUtils.doApprove(this.poolParam.POOL_TOKEN[inIndex], this.sender, this.poolParam.curvePoolAddress, inAmount)
-                let outTokenAmountBefore = await AccountUtils.balanceOfERC20Token(this.poolParam.POOL_TOKEN[outIndex], this.sender)
-                await this.curvePoolInstance.methods.exchange(inIndex, outIndex, inAmount.toString(), 0).send({ from: this.sender, gas: 500000 })
-                let outTokenAmountAfter = await AccountUtils.balanceOfERC20Token(this.poolParam.POOL_TOKEN[outIndex], this.sender)
-                return new BigNumber(outTokenAmountAfter).sub(new BigNumber(outTokenAmountBefore))
-            })
-        },
-        this.addLiquidity = async (tokenAmounts) => {
-            return await timeMachine.sendAndRollback(async () => {
-                for (let index in tokenAmounts) {
-                    if (BNUtils.isPositive(tokenAmounts[index])) {
-                        await AccountUtils.giveERC20Token(this.poolParam.POOL_TOKEN[index], this.sender, tokenAmounts[index])
-                        await AccountUtils.doApprove(this.poolParam.POOL_TOKEN[index], this.sender, this.poolParam.curvePoolAddress, tokenAmounts[index])
-                    }
+    this.poolParam = poolParam[curvePoolSymbol],
+    this.curvePoolInstance = this.poolParam.curvePoolInstance(),
+    this.exchange = async (inIndex, outIndex, inAmount) => {
+        return await timeMachine.sendAndRollback(async () => {
+            await AccountUtils.giveERC20Token(this.poolParam.POOL_TOKEN[inIndex], this.sender, inAmount)
+            await AccountUtils.doApprove(this.poolParam.POOL_TOKEN[inIndex], this.sender, this.poolParam.curvePoolAddress, inAmount)
+            let outTokenAmountBefore = await AccountUtils.balanceOfERC20Token(this.poolParam.POOL_TOKEN[outIndex], this.sender)
+            await this.curvePoolInstance.methods.exchange(inIndex, outIndex, inAmount.toString(), 0).send({ from: this.sender, gas: 500000 })
+            let outTokenAmountAfter = await AccountUtils.balanceOfERC20Token(this.poolParam.POOL_TOKEN[outIndex], this.sender)
+            return new BigNumber(outTokenAmountAfter).sub(new BigNumber(outTokenAmountBefore))
+        })
+    },
+    this.addLiquidity = async (tokenAmounts) => {
+        return await timeMachine.sendAndRollback(async () => {
+            for (let index in tokenAmounts) {
+                if (BNUtils.isPositive(tokenAmounts[index])) {
+                    await AccountUtils.giveERC20Token(this.poolParam.POOL_TOKEN[index], this.sender, tokenAmounts[index])
+                    await AccountUtils.doApprove(this.poolParam.POOL_TOKEN[index], this.sender, this.poolParam.curvePoolAddress, tokenAmounts[index])
                 }
-                let poolTokenAmountBefore = await AccountUtils.balanceOfERC20Token(this.poolParam.LP_TOKEN, this.sender)
-                await this.curvePoolInstance.methods.add_liquidity(tokenAmounts.map((value) => value.toString()), 0).send({ from: this.sender, gas: 500000 })
-                let poolTokenAmountAfter = await AccountUtils.balanceOfERC20Token(this.poolParam.LP_TOKEN, this.sender)
-                return new BigNumber(poolTokenAmountAfter).sub(new BigNumber(poolTokenAmountBefore))
-            })
-        }
+            }
+            let poolTokenAmountBefore = await AccountUtils.balanceOfERC20Token(this.poolParam.LP_TOKEN, this.sender)
+            await this.curvePoolInstance.methods.add_liquidity(tokenAmounts.map((value) => value.toString()), 0).send({ from: this.sender, gas: 500000 })
+            let poolTokenAmountAfter = await AccountUtils.balanceOfERC20Token(this.poolParam.LP_TOKEN, this.sender)
+            return new BigNumber(poolTokenAmountAfter).sub(new BigNumber(poolTokenAmountBefore))
+        })
+    }
 }
 
 const curvePool = {

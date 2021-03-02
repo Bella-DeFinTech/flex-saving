@@ -241,6 +241,16 @@ CurvePool.prototype.add_liquidity = function (in_token_amounts) {
     return mint_amount
 }
 
+CurvePool.prototype.remove_liquidity = function (pool_token_amount) {
+    let amounts = new Array(this.CURRENCY_NUMBER.toNumber()).fill(new BigNumber(0))
+    for (let i = 0; i < this.CURRENCY_NUMBER; i++) {
+        amounts[i] = this.balances[i] * pool_token_amount / this.total_supply
+        this.balances[i].isub(amounts[i])
+    }
+    this.burn_token(pool_token_amount)
+    return amounts
+}
+
 CurvePool.prototype.remove_liquidity_one_coin = function (pool_token_amount, i) {
     let [dy, dy_fee] = this._calc_withdraw_one_coin(pool_token_amount, i)
     // assert dy >= min_amount, "Not enough coins removed"
