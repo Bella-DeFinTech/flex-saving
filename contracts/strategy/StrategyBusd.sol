@@ -83,6 +83,10 @@ contract StrategyBusd is CrvLocker {
         IERC20(want).safeApprove(busdPoolZap, 0);
         IERC20(want).safeApprove(busdPoolZap, uint(-1));
 
+        // bCrv -> bCrv zap
+        IERC20(bCrv).safeApprove(busdPoolZap, 0);
+        IERC20(bCrv).safeApprove(busdPoolZap, uint(-1));
+
         // usdt -> bCrv zap
         IERC20(usdt).safeApprove(busdPoolZap, 0);
         IERC20(usdt).safeApprove(busdPoolZap, uint(-1));
