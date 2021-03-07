@@ -1,6 +1,6 @@
-const BigNumber = require('bn.js');
-const BNUtils = require("../utils/BNUtils.js");
-const curvePoolConstant = require('../const/CurvePool.js');
+const BigNumber = require('bn.js')
+const BNUtils = require("../utils/BNUtils.js")
+const curvePoolConstant = require('../const/CurvePool.js')
 
 /**
  * Curve base Pool Emulator

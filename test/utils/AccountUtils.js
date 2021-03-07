@@ -17,7 +17,7 @@ async function unlockAccount(address) {
 }
 
 async function give10ETH(toAddress) {
-  this.unlockAccount(toAddress).catch((err) => {
+  unlockAccount(toAddress).catch((err) => {
     // looks like it is an account known to the personal namespace or one of accounts returned by eth_accounts, ignore it
   })
   await web3.eth.sendTransaction({
@@ -29,9 +29,10 @@ async function give10ETH(toAddress) {
 }
 
 async function unlockAndGiveETHToContract(toAddress, amountInETH, gas) {
-  this.unlockAccount(toAddress).catch((err) => {
+  unlockAccount(toAddress).catch((err) => {
     // looks like it is an account known to the personal namespace or one of accounts returned by eth_accounts, ignore it
   })
+  // make sure contract fallback function PAYABLE!!
   await web3.eth.sendTransaction({
     from: ADMIN,
     to: toAddress,
@@ -42,11 +43,11 @@ async function unlockAndGiveETHToContract(toAddress, amountInETH, gas) {
 
 async function giveERC20Token(tokenSymbol, toAddress, amountInWei) {
   let tokenInstance = await saddle.getContractAt('IERC20', tokenAddress[tokenSymbol].token)
-  this.unlockAccount(toAddress).catch((err) => {
+  unlockAccount(toAddress).catch((err) => {
     // looks like it is an account known to the personal namespace or one of accounts returned by eth_accounts, ignore it
   })
   // we assume holder is a contract, which is also applicable to externally owned account
-  await this.unlockAndGiveETHToContract(tokenAddress[tokenSymbol].tokenHolder, 1, 230000)
+  await unlockAndGiveETHToContract(tokenAddress[tokenSymbol].tokenHolder, "1", 230000)
   console.log(tokenSymbol + ' balance: ' + await this.balanceOfERC20Token(tokenSymbol, tokenAddress[tokenSymbol].tokenHolder))
   await send(tokenInstance, 'transfer', [toAddress, new BigNumber(amountInWei).toString()], { from: tokenAddress[tokenSymbol].tokenHolder })
 }
@@ -66,7 +67,7 @@ async function doApprove(tokenSymbol, holderAddress, spenderAddress, amountInWei
 }
 
 async function doContractApprove(tokenSymbol, holderContractAddress, spenderAddress, amountInWei) {
-  await give10ETH(holderContractAddress)
+  await unlockAndGiveETHToContract(holderContractAddress, "1", 230000)
   await doApprove(tokenSymbol, holderContractAddress, spenderAddress, amountInWei)
 }
 
