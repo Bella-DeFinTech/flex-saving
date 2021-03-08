@@ -234,7 +234,7 @@ module.exports = async function (saddle, deployer, governance, deployTokenIndice
     })
   }
 
-  return addVault(controllerInstance, whitelistInstance, 'StrategyHbtc', strategyTokens.HBTC)
+  return addVault(controllerInstance, whitelistInstance, 'StrategyBusd', strategyTokens.BUSD)
 
     .then(() => {
       addNewContent('')
