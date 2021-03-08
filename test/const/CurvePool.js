@@ -93,7 +93,7 @@ const poolParam = {
                 return async function () {
                     let rates = PRECISION_MUL.slice(0)
                     for (let index = 0; index < CURRENCY_NUMBER.toNumber(); index++) {
-                        rates[index].imul(new BigNumber(await yTokenInstance(index).methods.getPricePerFullShare().call({}, 'latest')))
+                        rates[index] = rates[index].mul(new BigNumber(await yTokenInstance(index).methods.getPricePerFullShare().call({}, 'latest')))
                     }
                     return rates
                 }
