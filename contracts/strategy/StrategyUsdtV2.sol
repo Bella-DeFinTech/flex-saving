@@ -211,7 +211,7 @@ contract StrategyUsdtV2 is CrvLocker {
     }
     
     function _withdrawAll() internal {
-        // withdraw 3pool crv from gauge
+        // withdraw bcrv from gauge
         uint256 amount = ICrvDeposit(bCrvGauge).balanceOf(address(this));
         _withdrawXCurve(bCrvGauge, amount);
         
@@ -220,7 +220,7 @@ contract StrategyUsdtV2 is CrvLocker {
     }
     
     function _withdrawSome(uint256 _amount) internal returns (uint) {
-        // withdraw 3pool crv from gauge
+        // withdraw bcrv from gauge
         uint256 amount = _amount.mul(1e18).div(ICrvPoolUnderlying(busdPool).get_virtual_price())
             .mul(TO_BCRV_DECIMALS)
             .mul(10000 + withdrawCompensation).div(10000);
