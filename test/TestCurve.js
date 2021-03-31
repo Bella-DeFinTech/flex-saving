@@ -1,8 +1,9 @@
-const BigNumber = require('bn.js');
-const CurvePool = require("./lib/AdjustableCurvePool.js");
-const AssertionUtils = require("./utils/AssertionUtils.js");
-const BNUtils = require("./utils/BNUtils.js");
-const curvePoolConstant = require('./const/CurvePool.js');
+const BigNumber = require('bn.js')
+const CurvePool = require("./lib/AdjustableCurvePool.js")
+const CurveYPool = require("./lib/CurveYPool.js")
+const AssertionUtils = require("./utils/AssertionUtils.js")
+const BNUtils = require("./utils/BNUtils.js")
+const curvePoolConstant = require('./const/CurvePool.js')
 const tokenAddress = require('./const/Token.js')
 
 // don't capture console
@@ -10,111 +11,167 @@ const tokenAddress = require('./const/Token.js')
 
 jest.setTimeout(30 * 60 * 1000);
 
-describe('Test Curve StableSwap 3Pool simulation views', curvePoolViewTestSuite('_3pool'))
-describe('Test Curve StableSwap 3Pool simulation trxs', curvePoolTrxTestSuite('_3pool'))
+// describe('Test Curve StableSwap 3Pool simulation views', curvePoolViewTestSuite('_3pool'))
+// describe('Test Curve StableSwap 3Pool simulation trxs', curvePoolTrxTestSuite('_3pool'))
 
-describe('Test Curve StableSwap hbtcPool simulation views', curvePoolViewTestSuite('hbtc'))
-describe('Test Curve StableSwap hbtcPool simulation trxs', curvePoolTrxTestSuite('hbtc'))
+// describe('Test Curve StableSwap hbtcPool simulation views', curvePoolViewTestSuite('hbtc'))
+// describe('Test Curve StableSwap hbtcPool simulation trxs', curvePoolTrxTestSuite('hbtc'))
 
-    function curvePoolViewTestSuite(curvePoolSymbol) {
-        return () => {
-            let curve
-            let contractView = curvePoolConstant[curvePoolSymbol].view.atBlock('latest')
-            let poolParam = curvePoolConstant[curvePoolSymbol].param
-            beforeAll(async () => {
-                const blockInput = curvePoolConstant[curvePoolSymbol].input.atBlock('latest')
-                const A = await blockInput.A()
-                const balances = await blockInput.balances()
-                // console.log(balances.toString())
-                const admin_balances = await blockInput.admin_balances()
-                const tokens = await blockInput.tokens()
-                curve = new CurvePool(curvePoolSymbol, A, balances, admin_balances, tokens)
-            })
+// describe('Test Curve StableSwap busdPool simulation views', curvePoolViewTestSuite('busd'))
+describe('Test Curve StableSwap busdPool simulation trxs', curveYPoolTrxTestSuite('busd'))
 
-            it('can get accurate dy', async () => {
-                let swapInPoolTokenIndex = 0
-                let swapInPoolTokenSymbol = poolParam.POOL_TOKEN[swapInPoolTokenIndex]
-                let swapInPoolTokenAmount = BNUtils.mul10pow(new BigNumber(2), tokenAddress[swapInPoolTokenSymbol].decimals)
-                let swapOutPoolTokenIndex = 1
-                let swapOutPoolTokenAmount = curve.dy(swapInPoolTokenIndex, swapOutPoolTokenIndex, swapInPoolTokenAmount)
-                // console.log("dy: " + dy)
-                let expectedSwapOutPoolTokenAmount = await contractView.dy(swapInPoolTokenIndex, swapOutPoolTokenIndex, swapInPoolTokenAmount)
-                AssertionUtils.assertBNEq(swapOutPoolTokenAmount, expectedSwapOutPoolTokenAmount.toString())
-            })
+function curvePoolViewTestSuite(curvePoolSymbol) {
+    return () => {
+        let curve
+        let contractView = curvePoolConstant[curvePoolSymbol].view.atBlock('latest')
+        let poolParam = curvePoolConstant[curvePoolSymbol].param
+        beforeAll(async () => {
+            const blockInput = curvePoolConstant[curvePoolSymbol].input.atBlock('latest')
+            const A = await blockInput.A()
+            const balances = await blockInput.balances()
+            // console.log(balances.toString())
+            const admin_balances = await blockInput.admin_balances()
+            const tokens = await blockInput.tokens()
+            curve = new CurvePool(curvePoolSymbol, A, balances, admin_balances, tokens)
+        })
 
-            it('can get accurate token total supply', async () => {
-                let totalSupply = curve.get_total_supply()
-                // console.log("total_supply: " + totalSupply)
-                let expectedTotalSupply = await contractView.totalSupply()
-                AssertionUtils.assertBNEq(totalSupply, expectedTotalSupply.toString())
-            })
+        it('can get accurate dy', async () => {
+            let swapInPoolTokenIndex = 0
+            let swapInPoolTokenSymbol = poolParam.POOL_TOKEN[swapInPoolTokenIndex]
+            let swapInPoolTokenAmount = BNUtils.mul10pow(new BigNumber(2), tokenAddress[swapInPoolTokenSymbol].decimals)
+            let swapOutPoolTokenIndex = 1
+            let swapOutPoolTokenAmount = curve.dy(swapInPoolTokenIndex, swapOutPoolTokenIndex, swapInPoolTokenAmount)
+            // console.log("dy: " + dy)
+            let expectedSwapOutPoolTokenAmount = await contractView.dy(swapInPoolTokenIndex, swapOutPoolTokenIndex, swapInPoolTokenAmount)
+            AssertionUtils.assertBNEq(swapOutPoolTokenAmount, expectedSwapOutPoolTokenAmount.toString())
+        })
 
-            it('can get accurate virtual price', async () => {
-                let virtualPrice = curve.get_virtual_price()
-                // console.log("virtual price: " + virtual_price)
-                let expectedVirtualPrice = await contractView.virtualPrice()
-                AssertionUtils.assertBNEq(virtualPrice, expectedVirtualPrice.toString())
-            })
+        it('can get accurate token total supply', async () => {
+            let totalSupply = curve.get_total_supply()
+            // console.log("total_supply: " + totalSupply)
+            let expectedTotalSupply = await contractView.totalSupply()
+            AssertionUtils.assertBNEq(totalSupply, expectedTotalSupply.toString())
+        })
 
-            it('can accurately calc_withdraw_one_coin', async () => {
-                let poolTokenIndex = 0
-                let lpTokenSymbol = poolParam.LP_TOKEN
-                let lpTokenAmount = BNUtils.mul10pow(new BigNumber(2), tokenAddress[lpTokenSymbol].decimals)
-                let tokenAmount = curve.calc_withdraw_one_coin(lpTokenAmount, poolTokenIndex)
-                // console.log("calc_withdraw_one_coin: " + tokenAmount)
-                let expectedTokenAmount = await contractView.calcWithdrawOneCoin(lpTokenAmount, poolTokenIndex)
-                AssertionUtils.assertBNEq(tokenAmount, expectedTokenAmount.toString())
-            })
+        it('can get accurate virtual price', async () => {
+            let virtualPrice = curve.get_virtual_price()
+            // console.log("virtual price: " + virtual_price)
+            let expectedVirtualPrice = await contractView.virtualPrice()
+            AssertionUtils.assertBNEq(virtualPrice, expectedVirtualPrice.toString())
+        })
 
-            it('can accurately calc_token_amount when deposit', async () => {
-                // deposit 10000 token
-                let poolTokenIndex = 0
-                let poolTokenSymbol = poolParam.POOL_TOKEN[poolTokenIndex]
-                let tokenAmounts = new Array(poolParam.CURRENCY_NUMBER().toNumber()).fill(new BigNumber(0))
-                tokenAmounts[poolTokenIndex] = BNUtils.mul10pow(new BigNumber('10000'), tokenAddress[poolTokenSymbol].decimals)
-                let lpTokenAmount = curve.calc_token_amount(tokenAmounts, true)
-                // console.log("calc_token_amount(deposit): " + token_amount)
-                let expectedpoolTokenAmount = await contractView.calcTokenAmount(tokenAmounts, true)
-                AssertionUtils.assertBNEq(lpTokenAmount, expectedpoolTokenAmount.toString())
-            })
-        }
+        it('can accurately calc_withdraw_one_coin', async () => {
+            let poolTokenIndex = 0
+            let lpTokenSymbol = poolParam.LP_TOKEN
+            let lpTokenAmount = BNUtils.mul10pow(new BigNumber(2), tokenAddress[lpTokenSymbol].decimals)
+            let tokenAmount = curve.calc_withdraw_one_coin(lpTokenAmount, poolTokenIndex)
+            // console.log("calc_withdraw_one_coin: " + tokenAmount)
+            let expectedTokenAmount = await contractView.calcWithdrawOneCoin(lpTokenAmount, poolTokenIndex)
+            AssertionUtils.assertBNEq(tokenAmount, expectedTokenAmount.toString())
+        })
+
+        it('can accurately calc_token_amount when deposit', async () => {
+            // deposit 10000 token
+            let poolTokenIndex = 0
+            let poolTokenSymbol = poolParam.POOL_TOKEN[poolTokenIndex]
+            let tokenAmounts = new Array(poolParam.CURRENCY_NUMBER().toNumber()).fill(new BigNumber(0))
+            tokenAmounts[poolTokenIndex] = BNUtils.mul10pow(new BigNumber('10000'), tokenAddress[poolTokenSymbol].decimals)
+            let lpTokenAmount = curve.calc_token_amount(tokenAmounts, true)
+            // console.log("calc_token_amount(deposit): " + token_amount)
+            let expectedpoolTokenAmount = await contractView.calcTokenAmount(tokenAmounts, true)
+            AssertionUtils.assertBNEq(lpTokenAmount, expectedpoolTokenAmount.toString())
+        })
     }
+}
 
-    function curvePoolTrxTestSuite(curvePoolSymbol) {
-        return () => {
-            let curve
-            let contractTrx = curvePoolConstant[curvePoolSymbol].trx.latest()
-            let poolParam = curvePoolConstant[curvePoolSymbol].param
-            beforeEach(async () => {
-                const blockInput = curvePoolConstant[curvePoolSymbol].input.atBlock('latest')
-                const A = await blockInput.A()
-                const balances = await blockInput.balances()
-                const admin_balances = await blockInput.admin_balances()
-                const tokens = await blockInput.tokens()
-                curve = new CurvePool(curvePoolSymbol, A, balances, admin_balances, tokens)
-            })
+function curvePoolTrxTestSuite(curvePoolSymbol) {
+    return () => {
+        let curve
+        let contractTrx = curvePoolConstant[curvePoolSymbol].trx.latest()
+        let poolParam = curvePoolConstant[curvePoolSymbol].param
+        beforeEach(async () => {
+            const blockInput = curvePoolConstant[curvePoolSymbol].input.atBlock('latest')
+            const A = await blockInput.A()
+            const balances = await blockInput.balances()
+            const admin_balances = await blockInput.admin_balances()
+            const tokens = await blockInput.tokens()
+            curve = new CurvePool(curvePoolSymbol, A, balances, admin_balances, tokens)
+        })
 
-            it('can accurately exchange', async () => {
-                let swapInPoolTokenIndex = 0
-                let swapInPoolTokenSymbol = poolParam.POOL_TOKEN[swapInPoolTokenIndex]
-                let swapInPoolTokenAmount = BNUtils.mul10pow(new BigNumber(2), tokenAddress[swapInPoolTokenSymbol].decimals)
-                let swapOutPoolTokenIndex = 1
-                let swapOutPoolTokenAmount = curve.exchange(swapInPoolTokenIndex, swapOutPoolTokenIndex, swapInPoolTokenAmount)
-                // console.log("exchange: " + swapOutPoolTokenAmount)
-                AssertionUtils.assertBNEq(swapOutPoolTokenAmount, (await contractTrx.exchange(swapInPoolTokenIndex, swapOutPoolTokenIndex, swapInPoolTokenAmount)).toString())
-            })
+        it('can accurately exchange', async () => {
+            let swapInPoolTokenIndex = 0
+            let swapInPoolTokenSymbol = poolParam.POOL_TOKEN[swapInPoolTokenIndex]
+            let swapInPoolTokenAmount = BNUtils.mul10pow(new BigNumber(2), tokenAddress[swapInPoolTokenSymbol].decimals)
+            let swapOutPoolTokenIndex = 1
+            let swapOutPoolTokenAmount = curve.exchange(swapInPoolTokenIndex, swapOutPoolTokenIndex, swapInPoolTokenAmount)
+            // console.log("exchange: " + swapOutPoolTokenAmount)
+            AssertionUtils.assertBNEq(swapOutPoolTokenAmount, (await contractTrx.exchange(swapInPoolTokenIndex, swapOutPoolTokenIndex, swapInPoolTokenAmount)).toString())
+        })
 
-            it('can accurately add_liquidity', async () => {
-                let poolTokenIndex = 0
-                let poolTokenSymbol = poolParam.POOL_TOKEN[poolTokenIndex]
-                let tokenAmounts = new Array(poolParam.CURRENCY_NUMBER().toNumber()).fill(new BigNumber(0))
-                tokenAmounts[poolTokenIndex] = BNUtils.mul10pow(new BigNumber('1000'), tokenAddress[poolTokenSymbol].decimals)
-                let lpTokenAmount = curve.add_liquidity(tokenAmounts)
-                // console.log("add_liquidity: " + poolTokenAmount)
-                AssertionUtils.assertBNEq(lpTokenAmount, (await contractTrx.addLiquidity(tokenAmounts)).toString())
-            })
-        }
+        it('can accurately add_liquidity', async () => {
+            let poolTokenIndex = 0
+            let poolTokenSymbol = poolParam.POOL_TOKEN[poolTokenIndex]
+            let tokenAmounts = new Array(poolParam.CURRENCY_NUMBER().toNumber()).fill(new BigNumber(0))
+            tokenAmounts[poolTokenIndex] = BNUtils.mul10pow(new BigNumber('1000'), tokenAddress[poolTokenSymbol].decimals)
+            let lpTokenAmount = curve.add_liquidity(tokenAmounts)
+            // console.log("add_liquidity: " + poolTokenAmount)
+            AssertionUtils.assertBNEq(lpTokenAmount, (await contractTrx.addLiquidity(tokenAmounts)).toString())
+        })
     }
+}
+
+function curveYPoolTrxTestSuite(curvePoolSymbol) {
+    return () => {
+        let curve
+        let contractTrx = curvePoolConstant[curvePoolSymbol].trx.latest()
+        let poolParam = curvePoolConstant[curvePoolSymbol].param
+        beforeEach(async () => {
+            const blockInput = curvePoolConstant[curvePoolSymbol].input.atBlock('latest')
+            const A = await blockInput.A()
+            const balances = await blockInput.balances()
+            const admin_balances = await blockInput.admin_balances()
+            const tokens = await blockInput.tokens()
+            const currencyRatesFetcher = poolParam.CURRENCY_RATES()
+            const depositExecutor = poolParam.deposit()
+            const withdrawExecutor = poolParam.withdraw()
+            curve = await new CurveYPool(curvePoolSymbol, A, balances, admin_balances, tokens, currencyRatesFetcher, depositExecutor, withdrawExecutor)
+        })
+
+        it('can accurately exchange_underlying', async () => {
+            let swapInPoolTokenIndex = 0
+            let swapInPoolTokenSymbol = poolParam.UNDERLYING_POOL_TOKEN[swapInPoolTokenIndex]
+            let swapInPoolTokenAmount = BNUtils.mul10pow(new BigNumber('100'), tokenAddress[swapInPoolTokenSymbol].decimals)
+            let swapOutPoolTokenIndex = 1
+
+            let expectedSwapOutPoolTokenAmount = await contractTrx.exchangeUnderlying(swapInPoolTokenIndex, swapOutPoolTokenIndex, swapInPoolTokenAmount)
+            let swapOutPoolTokenAmount = await curve.exchange_underlying(swapInPoolTokenIndex, swapOutPoolTokenIndex, swapInPoolTokenAmount)
+            // console.log("exchange: " + swapOutPoolTokenAmount)
+            AssertionUtils.assertBNApproxRange(swapOutPoolTokenAmount, expectedSwapOutPoolTokenAmount.toString(), 1, 10000)
+        })
+
+        it('can accurately add_liquidity_underlying', async () => {
+            let poolTokenIndex = 0
+            let poolTokenSymbol = poolParam.UNDERLYING_POOL_TOKEN[poolTokenIndex]
+            let tokenAmounts = new Array(poolParam.CURRENCY_NUMBER().toNumber()).fill(new BigNumber(0))
+            tokenAmounts[poolTokenIndex] = BNUtils.mul10pow(new BigNumber('100'), tokenAddress[poolTokenSymbol].decimals)
+
+            let expectedLpTokenAmount = await contractTrx.addLiquidityUnderlying(tokenAmounts)
+            let lpTokenAmount = await curve.add_liquidity_underlying(tokenAmounts)
+            // console.log("add_liquidity: " + lpTokenAmount)
+            AssertionUtils.assertBNApproxRange(lpTokenAmount, expectedLpTokenAmount.toString(), 1, 10000)
+        })
+
+        it.only('can accurately remove_liquidity_one_coin', async () => {
+            let poolTokenIndex = 0
+            let lpTokenSymbol = poolParam.LP_TOKEN
+            let lpTokenAmount = BNUtils.mul10pow(new BigNumber('100'), tokenAddress[lpTokenSymbol].decimals)
+            let expectedUTokenAmount = await contractTrx.removeLiquidityOneCoinUnderlying(lpTokenAmount, poolTokenIndex)
+            let uTokenAmount = await curve.remove_liquidity_one_coin_underlying(lpTokenAmount, poolTokenIndex)
+            // console.log("add_liquidity: " + lpTokenAmount)
+            AssertionUtils.assertBNApproxRange(uTokenAmount, expectedUTokenAmount.toString(), 1, 10000)
+        })
+    }
+}
 
     // some tests below for verification of ideas, still untidy
 
