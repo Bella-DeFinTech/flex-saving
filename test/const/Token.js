@@ -55,16 +55,36 @@ const address = {
         tokenHolder: '0xbe0eb53f46cd790cd13851d5eff43d12404d33e8',
         decimals: 18
     },
-    hCRV:{
+    hCRV: {
         token: '0xb19059ebb43466C323583928285a49f558E572Fd',
-        tokenHolder: '',
+        tokenHolder: '0xCC775989e76ab386E9253df5B0c0b473E22102E2',
         decimals: 18
     },
-    yBUSD_CRV:{
+    bCRV: {
         token: '0x3B3Ac5386837Dc563660FB6a0937DFAa5924333B',
-        tokenHolder: '',
+        tokenHolder: '0x029fb737ef02cba7e9a35d60d2ad7114cbfe5eba',
         decimals: 18
-    }
+    },
+    yDAI: {
+        token: '0xC2cB1040220768554cf699b0d863A3cd4324ce32',
+        tokenHolder: '0xdf7247dcbc1a144f3ebacaf5d2bbc588f068074f',
+        decimals: 18
+    },
+    yUSDC: {
+        token: '0x26EA744E5B887E5205727f55dFBE8685e3b21951',
+        tokenHolder: '0x8e7ddff4208adc8e2c0c82ef74342bcf9039692f',
+        decimals: 6
+    },
+    yUSDT: {
+        token: '0xE6354ed5bC4b393a5Aad09f21c46E101e692d447',
+        tokenHolder: '0xae2f502df4c6bc6e4b6d9e457e44db767d1f459f',
+        decimals: 6
+    },
+    yBUSD: {
+        token: '0x04bC0Ab673d88aE9dbC9DA2380cB6B79C4BCa9aE',
+        tokenHolder: '0xe16ad5425bebd9bf77735556586aa2d3a6c2c8ce',
+        decimals: 18
+    },
 
 }
 
