@@ -27,7 +27,7 @@ import "../interfaces/IUniswapRouter.sol";
 contract StrategyWeth {
     using SafeERC20 for IERC20;
     using Address for address;
-    using SafeMath for uint256;
+    using SafeMath for uint;
 
     address constant public want = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2); // weth
     address constant public cyWeth = address(0x41c84c0e2EE0b740Cf0d31F63f3B6F627DC6b393); // cyWeth
@@ -93,17 +93,17 @@ contract StrategyWeth {
 
     }
     
-    function _withdrawSome(uint256 _amount) internal returns (uint) {
+    function _withdrawSome(uint _amount) internal returns (uint) {
 
         // 1e10 = 1e18 / 1e8 = rate scale factor / cyWeth decimal
-        uint256 cyWethAmount = _amount.mul(1e10).div(ICErc20(cyWeth).exchangeRateStored()); 
-        uint256 amount = Math.min(cyWethAmount, ICErc20(cyWeth).balanceOf(address(this)));
+        uint cyWethAmount = _amount.mul(1e10).div(ICErc20(cyWeth).exchangeRateStored()); 
+        uint amount = Math.min(cyWethAmount, ICErc20(cyWeth).balanceOf(address(this)));
 
-        uint256 bBefore = IERC20(want).balanceOf(address(this));
+        uint bBefore = IERC20(want).balanceOf(address(this));
 
         require(ICErc20(cyWeth).redeem(amount) == 0, '!redeem');
 
-        uint256 bAfter = IERC20(want).balanceOf(address(this));
+        uint bAfter = IERC20(want).balanceOf(address(this));
 
         return bAfter.sub(bBefore);
     }
@@ -117,7 +117,7 @@ contract StrategyWeth {
         return balanceOf();
     }
 
-    function balanceInPool() public view returns (uint256) {
+    function balanceInPool() public view returns (uint) {
         return ICErc20(cyWeth).balanceOf(address(this)).mul(ICErc20(cyWeth).exchangeRateStored()).div(1e10);
     }
     

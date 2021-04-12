@@ -17,7 +17,7 @@ import "../libraries/WhiteListChecker.sol";
 contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using Address for address;
-    using SafeMath for uint256;
+    using SafeMath for uint;
 
     IERC20 public token;
 
@@ -114,7 +114,7 @@ contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
      * @dev Rebalance the buffer to make withdraw cheaper
      */
     function rebalance() public onlyWhiteListed notPaused {
-        uint256 amount = IController(controller).balanceOf(address(token)).sub(balance().mul(min).div(max));
+        uint amount = IController(controller).balanceOf(address(token)).sub(balance().mul(min).div(max));
         IController(controller).withdraw(address(token), amount);
     }
     
@@ -142,13 +142,13 @@ contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
     }
 
     function depositETH() public payable onlyWhiteListed notPaused nonReentrant {
-        uint256 _pool = balance();
-        uint256 _before = token.balanceOf(address(this));
-        uint256 _amount = msg.value;
+        uint _pool = balance();
+        uint _before = token.balanceOf(address(this));
+        uint _amount = msg.value;
         IWETH(address(token)).deposit.value(_amount)();
-        uint256 _after = token.balanceOf(address(this));
+        uint _after = token.balanceOf(address(this));
         _amount = _after.sub(_before); // Additional check for deflationary tokens
-        uint256 shares = 0;
+        uint shares = 0;
         if (totalSupply() == 0) {
             shares = _amount;
         } else {
@@ -198,7 +198,7 @@ contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
         token.safeTransfer(user, r.sub(_fee));
     }
 
-    function _withdrawETH(address payable user, uint256 _shares) private {
+    function _withdrawETH(address payable user, uint _shares) private {
         uint r = (underlyingBalance().mul(_shares)).div(totalSupply());
         _burn(user, _shares);
 
@@ -207,8 +207,8 @@ contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
         if (b < r) {
             uint w = r.sub(b);
             IController(controller).withdraw(address(token), w);
-            uint256 _after = token.balanceOf(address(this));
-            uint256 _diff = _after.sub(b);
+            uint _after = token.balanceOf(address(this));
+            uint _diff = _after.sub(b);
             if (_diff < w) {
                 r = b.add(_diff);
             }
