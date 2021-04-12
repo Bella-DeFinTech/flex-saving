@@ -96,8 +96,8 @@ contract StrategyWeth {
     function _withdrawSome(uint256 _amount) internal returns (uint) {
 
         // 1e10 = 1e18 / 1e8 = rate scale factor / cyWeth decimal
-        uint256 cyWethAmount = _amount.mul(1e10)/div(ICErc20(cyWeth).exchangeRateStored()); 
-        amount = Math.min(cyWethAmount, ICErc20(cyWeth).balanceOf(address(this)));
+        uint256 cyWethAmount = _amount.mul(1e10).div(ICErc20(cyWeth).exchangeRateStored()); 
+        uint256 amount = Math.min(cyWethAmount, ICErc20(cyWeth).balanceOf(address(this)));
 
         uint256 bBefore = IERC20(want).balanceOf(address(this));
 

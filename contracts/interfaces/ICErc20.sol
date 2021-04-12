@@ -24,10 +24,8 @@ interface ICErc20 {
      * @dev This function does not accrue interest before calculating the exchange rate
      * @return Calculated exchange rate scaled by 1e18
      */
-    function exchangeRateStored() public view returns (uint);
+    function exchangeRateStored() external view returns (uint);
 
     function approve(address spender, uint256 amount) external returns (bool);
-
-    function balanceOfUnderlying(address owner) external returns (uint);
 
 }

@@ -170,7 +170,7 @@ contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
     }
 
     function withdrawAllETH() external notPaused nonReentrant {
-        _withdrawETH(balanceOf(msg.sender));
+        _withdrawETH(msg.sender, balanceOf(msg.sender));
     }
 
     function getPricePerFullShare() public view returns (uint) {
@@ -198,9 +198,9 @@ contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
         token.safeTransfer(user, r.sub(_fee));
     }
 
-    function _withdrawETH(uint256 _shares) private {
+    function _withdrawETH(address payable user, uint256 _shares) private {
         uint r = (underlyingBalance().mul(_shares)).div(totalSupply());
-        _burn(msg.sender, _shares);
+        _burn(user, _shares);
 
         // Check balance
         uint b = token.balanceOf(address(this));
@@ -216,8 +216,9 @@ contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
 
         uint _fee = r.mul(withdrawalFee).div(withdrawalMax);
         IWETH(address(token)).withdraw(r);
-        address(IController(controller).rewards()).transfer(_fee);
-        address(msg.sender).transfer(r.sub(_fee));
+        address payable rewards = address(uint160(IController(controller).rewards()));
+        rewards.transfer(_fee);
+        address(user).transfer(r.sub(_fee));
     }
 
     function() external payable onlyWhiteListed notPaused nonReentrant {
