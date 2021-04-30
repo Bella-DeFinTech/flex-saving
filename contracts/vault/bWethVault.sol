@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "../interfaces/IController.sol";
-import "../interfaces/IWETH.sol";
+import "../interfaces/IWeth.sol";
 import "../libraries/WhiteListChecker.sol";
 
 /**
@@ -145,7 +145,7 @@ contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
         uint _pool = balance();
         uint _before = token.balanceOf(address(this));
         uint _amount = msg.value;
-        IWETH(address(token)).deposit.value(_amount)();
+        IWeth(address(token)).deposit.value(_amount)();
         uint _after = token.balanceOf(address(this));
         _amount = _after.sub(_before); // Additional check for deflationary tokens
         uint shares = 0;
@@ -215,7 +215,7 @@ contract bVault is ERC20, ERC20Detailed, WhiteListChecker, ReentrancyGuard {
         }
 
         uint _fee = r.mul(withdrawalFee).div(withdrawalMax);
-        IWETH(address(token)).withdraw(r);
+        IWeth(address(token)).withdraw(r);
         address payable rewards = address(uint160(IController(controller).rewards()));
         rewards.transfer(_fee);
         address(user).transfer(r.sub(_fee));

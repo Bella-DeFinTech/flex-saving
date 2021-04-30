@@ -1,6 +1,6 @@
 pragma solidity 0.5.15;
 
-interface IWETH {
+interface IWeth {
     function deposit() external payable;
     function withdraw(uint wad) external;
     function totalSupply() external view returns (uint);
