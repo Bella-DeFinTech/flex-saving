@@ -4,8 +4,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/math/Math.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
-import "../interfaces/IWeth.sol";
 import "../interfaces/ICErc20.sol";
 import "../interfaces/IController.sol";
 import "../interfaces/IUniswapRouter.sol";
@@ -26,7 +24,6 @@ import "../interfaces/IUniswapRouter.sol";
 
 contract StrategyWeth {
     using SafeERC20 for IERC20;
-    using Address for address;
     using SafeMath for uint;
 
     address constant public want = address(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2); // weth
