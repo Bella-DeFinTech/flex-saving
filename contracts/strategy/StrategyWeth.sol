@@ -42,11 +42,12 @@ contract StrategyWeth {
         IERC20(want).safeApprove(cyWeth, uint(-1)); 
     }
 
-    function deposit(uint _amount) public {
+    function deposit() public {
         require((msg.sender == governance || 
             (msg.sender == tx.origin) ||
             (msg.sender == controller)),"!contract");
-        require(ICErc20(cyWeth).mint(_amount) == 0, '!mint');
+        uint amount = IERC20(want).balanceOf(address(this));
+        require(ICErc20(cyWeth).mint(amount) == 0, '!mint');
     }
     
     // Controller only function for creating additional rewards from dust
@@ -92,13 +93,9 @@ contract StrategyWeth {
     
     function _withdrawSome(uint _amount) internal returns (uint) {
 
-        // 1e10 = 1e18 / 1e8 = rate scale factor / cyWeth decimal
-        uint cyWethAmount = _amount.mul(1e10).div(ICErc20(cyWeth).exchangeRateStored()); 
-        uint amount = Math.min(cyWethAmount, ICErc20(cyWeth).balanceOf(address(this)));
-
         uint bBefore = IERC20(want).balanceOf(address(this));
 
-        require(ICErc20(cyWeth).redeem(amount) == 0, '!redeem');
+        require(ICErc20(cyWeth).redeemUnderlying(_amount) == 0, '!redeem');
 
         uint bAfter = IERC20(want).balanceOf(address(this));
 
@@ -115,7 +112,7 @@ contract StrategyWeth {
     }
 
     function balanceInPool() public view returns (uint) {
-        return ICErc20(cyWeth).balanceOf(address(this)).mul(ICErc20(cyWeth).exchangeRateStored()).div(1e10);
+        return ICErc20(cyWeth).balanceOf(address(this)).mul(ICErc20(cyWeth).exchangeRateStored()).div(1e18);
     }
     
     function setGovernance(address _governance) external {
