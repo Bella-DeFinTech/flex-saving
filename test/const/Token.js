@@ -85,6 +85,12 @@ const address = {
         tokenHolder: '0xe16ad5425bebd9bf77735556586aa2d3a6c2c8ce',
         decimals: 18
     },
+    WETH: {
+        token: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        tokenHolder: '0x0f4ee9631f4be0a63756515141281a3e2b293bbe',
+        decimals: 18
+    },
+    
 
 }
 
