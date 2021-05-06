@@ -142,6 +142,10 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
         vaultAddressObj.bHbtc = vaultAddress
         console.log('[INFO]: VaultAddressObj write address: ' + vaultAddress)
         break;
+      case 'WETH':
+        vaultAddressObj.bWeth = vaultAddress
+        console.log('[INFO]: VaultAddressObj write address: ' + vaultAddress)
+        break;
       default:
         console.log('[INFO]: VaultAddressObj write address: N/A')
         break;
@@ -265,6 +269,9 @@ module.exports = async function (saddle, deployer, accounts, deployTokenIndices 
     })
     .then(() => {
       return addVault(controllerInstance, whitelistInstance, 'StrategyHbtc', strategyTokens.HBTC)
+    })
+    .then(() => {
+      return addVault(controllerInstance, whitelistInstance, 'StrategyWeth', strategyTokens.WETH)
     })
     .then(() => {
       return send(controllerInstance, 'setGovernance', [governanceAddress], { from: deployer, nonce: deployerTrxNonce })

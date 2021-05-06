@@ -7,6 +7,7 @@ const strategyTokens = {
     ARPA: { index: 3, symbol: 'ARPA', _address: tokenAddress.ARPA.token, contractName: 'StrategyArpa' },
     DAI: { index: 4, symbol: 'DAI', _address: tokenAddress.DAI.token, contractName: 'StrategyDai' },
     BUSD: { index: 5, symbol: 'BUSD', _address: tokenAddress.BUSD.token, contractName: 'StrategyBusd' },
-    HBTC: { index: 6, symbol: 'HBTC', _address: tokenAddress.HBTC.token, contractName: 'StrategyHbtc' }
+    HBTC: { index: 6, symbol: 'HBTC', _address: tokenAddress.HBTC.token, contractName: 'StrategyHbtc' },
+    WETH: { index: 7, symbol: 'WETH', _address: tokenAddress.WETH.token, contractName: 'StrategyWeth' }
 }
 module.exports = strategyTokens
